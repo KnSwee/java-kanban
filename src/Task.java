@@ -3,14 +3,13 @@ import java.util.Objects;
 public class Task {
     protected String name;
     protected String description;
-    protected int UID;
-    protected Status status;
+    protected int ID;
+    protected Status status = Status.NEW;
 
-    public Task(String name, String description, int UID) {
+    public Task(String name, String description, int ID) {
         this.name = name;
         this.description = description;
-        this.UID = UID;
-        status = Status.NEW;
+        this.ID = ID;
     }
 
 
@@ -19,7 +18,7 @@ public class Task {
         return "Task{" +
                 "name='" + name + '\'' +
                 ", description='" + description + '\'' +
-                ", UID=" + UID +
+                ", ID=" + ID +
                 ", status=" + status +
                 '}';
     }
@@ -29,11 +28,11 @@ public class Task {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Task task = (Task) o;
-        return UID == task.UID;
+        return ID == task.ID;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(UID);
+        return Objects.hash(ID);
     }
 }

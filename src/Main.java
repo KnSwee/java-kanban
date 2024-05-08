@@ -1,83 +1,43 @@
-import java.util.Scanner;
-
 public class Main {
 
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
-        TaskManager taskManager = new TaskManager();
-        boolean continueRun = true;
-        while (continueRun) {
-            printMenu();
-            int select = scanner.nextInt();
-            switch (select) {
-                case 1:
-                    taskManager.getAllTasks();
-                    continueRun = continueRunCheck();
-                    break;
-                case 2:
-                    System.out.println("Введите id задачи:");
-                    int selectId = scanner.nextInt();
-                    taskManager.getTaskById(selectId);
-                    continueRun = continueRunCheck();
-                    break;
-                case 3:
-                    taskManager.createTask();
-                    continueRun = continueRunCheck();
-                    break;
-                case 4:
-                    System.out.println("Введите id задачи, которую хотите обновить:");
-                    int updatedId = scanner.nextInt();
-                    System.out.println("Введите новое имя задачи. Если не хотите менять имя, введите \"0\"");
-                    String newName = scanner.nextLine();
-                    System.out.println("Введите новое описание задачи. Если не хотите менять описание, введите \"0\"");
-                    String newDescription = scanner.nextLine();
-                    System.out.println("Введите новый статус задачи:");
-                    System.out.println("(Допустимые значения : NEW, IN_PROGRESS, DONE)");
-                    Status newStatus = Status.valueOf(scanner.nextLine());
-                    TaskModel task = new TaskModel();
-                    task.setName(newName);
-                    task.setDescription(newDescription);
-                    task.setUID(updatedId);
-                    task.setStatus(newStatus);
-                    taskManager.updateTask(task);
-                    continueRun = continueRunCheck();
-                    break;
-                case 5:
 
-                    continueRun = continueRunCheck();
-                    break;
-                case 6:
+        Manager manager = new Manager();
 
-                    continueRun = continueRunCheck();
-                    break;
-                default:
-                    System.out.println("Такой команды не существует, попробуйте снова.");
-            }
-        }
+        int firstTaskId = manager.createTask("Task 1", "testTask1");
+        int secondTaskId = manager.createTask("Task 2", "testTask2");
+        int firstEpicId = manager.createEpic("Epic 1", "testEpic");
+        int subtaskId1 = manager.createSubtask("Subtask 1 (Epic 1)", "testSubtask1", firstEpicId);
+        int subtaskId2 = manager.createSubtask("Subtask 2 (Epic 1)", "testSubtask1", firstEpicId);
+        int secondEpicId = manager.createEpic("Epic 2", "testEpic2");
+        int subtaskId3 = manager.createSubtask("Subtsk 3 (Epic 2)", "testSubtask3", secondEpicId);
 
-    }
+        System.out.println("...tasks created...");
+        System.out.println(manager.getTasks());
+        System.out.println(manager.getEpics());
+        System.out.println(manager.getSubtasks());
+
+        manager.updateTask(firstTaskId, null, null, "IN_PROGRESS");
+        manager.updateTask(secondTaskId, null, null, "DONE");
+        manager.updateSubtask(subtaskId1, null, null, "IN_PROGRESS");
+        manager.updateSubtask(subtaskId2, null, null, "DONE");
+        manager.updateSubtask(subtaskId3, null, null, "DONE");
+
+        System.out.println("...tasks updated...");
+        System.out.println(manager.getTasks());
+        System.out.println(manager.getEpics());
+        System.out.println(manager.getSubtasks());
+
+        manager.deleteTaskById(firstTaskId);
+        manager.deleteEpicById(firstEpicId);
+
+        System.out.println("...tasks deleted...");
+        System.out.println(manager.getTasks());
+        System.out.println(manager.getEpics());
+        System.out.println(manager.getSubtasks());
 
 
-
-    private static boolean continueRunCheck() {
-        Scanner scanner = new Scanner(System.in);
-        System.out.println("Хотите сделать что-то ещё?");
-        System.out.println("1. Да");
-        System.out.println("2. Выход");
-        int select = scanner.nextInt();
-        return select == 1;
-    }
-
-
-    public static void printMenu() {
-        System.out.println("Что вы хотите сделать?");
-        System.out.println(("(Введите номер пункта меню)"));
-        System.out.println("1. Вывести список задач.");
-        System.out.println("2. Вывести задачу по id.");
-        System.out.println("3. Создать задачу.");
-        System.out.println("4. Обновить задачу.");
-        System.out.println("5. Удалить все задачи.");
-        System.out.println("6. Удалить задачу по id.");
     }
 
 }
+
