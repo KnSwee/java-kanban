@@ -1,3 +1,5 @@
+package project.enums;
+
 public enum TaskType {
     TASK("Задача"),
     EPIC("Эпик"),
