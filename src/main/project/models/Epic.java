@@ -13,9 +13,19 @@ public class Epic extends Task {
         super(name, description);
     }
 
+    public Epic(Epic epic) {
+        super(epic);
+        this.subtasks = new ArrayList<>(epic.subtasks);
+    }
+
 
     public void clearSubtasks() {
         subtasks.clear();
+    }
+
+    @Override
+    public Epic copy() {
+        return new Epic(this);
     }
 
     @Override

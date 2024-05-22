@@ -1,6 +1,6 @@
 package project.services;
 
-import project.controller.Controller;
+import project.controller.InMemoryTaskManager;
 import project.enums.Status;
 import project.models.Epic;
 import project.models.Subtask;
@@ -8,38 +8,44 @@ import project.models.Subtask;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class EpicManager {
+public class EpicManager implements Manager<Epic> {
 
     private final HashMap<Integer, Epic> epics = new HashMap<>();
 
 
-    public ArrayList<Epic> getEpics() {
+    @Override
+    public ArrayList<Epic> get() {
         return new ArrayList<>(epics.values());
     }
 
-    public Epic createEpic(Epic epic) {
-        epic.setID(Controller.getID());
-        epics.put(epic.getID(), epic);
-        return getEpicById(epic.getID());
+    @Override
+    public Epic create(Epic epic) {
+        epic.setID(InMemoryTaskManager.getID());
+        epics.put(epic.getID(), new Epic(epic));
+        return getById(epic.getID());
     }
 
-    public Epic getEpicById(int ID) {
+    @Override
+    public Epic getById(int ID) {
         return epics.get(ID);
     }
 
-    public void deleteEpics() {
+    @Override
+    public void delete() {
         epics.clear();
     }
 
-    public void updateEpic(Epic epic) {
+    @Override
+    public void update(Epic epic) {
         if (!(epic.getName() == null)) {
-            getEpicById(epic.getID()).setName(epic.getName());
+            getById(epic.getID()).setName(epic.getName());
         }
         if (!(epic.getDescription() == null)) {
-            getEpicById(epic.getID()).setDescription(epic.getDescription());
+            getById(epic.getID()).setDescription(epic.getDescription());
         }
     }
 
+    @Override
     public void deleteById(int ID) {
         epics.remove(ID);
     }
@@ -47,7 +53,7 @@ public class EpicManager {
     public void updateEpicStatus(int epicID, ArrayList<Subtask> subtasks) {
         int doneCounter = 0;
         int newCounter = 0;
-        Epic epic = getEpicById(epicID);
+        Epic epic = getById(epicID);
         for (Subtask subtask : subtasks) {
             if (subtask.getStatus() == Status.IN_PROGRESS) {
                 epic.setStatus(Status.IN_PROGRESS);
@@ -62,6 +68,8 @@ public class EpicManager {
             epic.setStatus(Status.NEW);
         } else if (doneCounter == subtasks.size()) {
             epic.setStatus(Status.DONE);
+        } else {
+            epic.setStatus(Status.IN_PROGRESS);
         }
     }
 
@@ -72,4 +80,8 @@ public class EpicManager {
         }
     }
 
+    @Override
+    public Class getType() {
+        return Epic.class;
+    }
 }

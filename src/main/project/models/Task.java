@@ -28,6 +28,17 @@ public class Task {
         this.status = Status.valueOf(status);
     }
 
+    public Task(Task task) {
+        this.name = task.name;
+        this.ID = task.ID;
+        this.description = task.description;
+        this.status = task.status;
+    }
+
+    public Task copy() {
+        return new Task(this);
+    }
+
     @Override
     public String toString() {
         return "Task{" +
@@ -46,6 +57,7 @@ public class Task {
         return ID == task.ID;
     }
 
+
     @Override
     public int hashCode() {
         return Objects.hash(ID);
@@ -55,28 +67,28 @@ public class Task {
         return name;
     }
 
-    public String getDescription() {
-        return description;
-    }
-
-    public int getID() {
-        return ID;
-    }
-
-    public Status getStatus() {
-        return status;
-    }
-
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
     }
 
     public void setDescription(String description) {
         this.description = description;
     }
 
+    public int getID() {
+        return ID;
+    }
+
     public void setID(int ID) {
         this.ID = ID;
+    }
+
+    public Status getStatus() {
+        return status;
     }
 
     public void setStatus(Status status) {
