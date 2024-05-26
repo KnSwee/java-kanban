@@ -21,7 +21,7 @@ public class EpicManager implements Manager<Epic> {
     @Override
     public Epic create(Epic epic) {
         epic.setID(InMemoryTaskManager.getID());
-        epics.put(epic.getID(), new Epic(epic));
+        epics.put(epic.getID(), epic);
         return getById(epic.getID());
     }
 

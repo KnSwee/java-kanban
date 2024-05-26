@@ -18,8 +18,8 @@ public class TaskManager implements Manager<Task> {
 
     @Override
     public Task create(Task task) {
-        task.setID(InMemoryTaskManager.getID()); //todo Добавить проверку на существование Айди
-        tasks.put(task.getID(), new Task(task));
+        task.setID(InMemoryTaskManager.getID());
+        tasks.put(task.getID(), task);
         return getById(task.getID());
     }
 

@@ -1,9 +1,7 @@
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import project.controller.InMemoryHistoryManager;
 import project.controller.InMemoryTaskManager;
-import project.controller.api.HistoryManager;
 import project.controller.api.TaskManager;
 import project.models.Epic;
 import project.models.Subtask;
@@ -15,7 +13,6 @@ import static org.junit.jupiter.api.Assertions.*;
 public class GeneralTest {
 
     TaskManager manager;
-    HistoryManager inMemoryHistoryManager;
     Task baseTask;
     Epic baseEpic;
     Subtask baseSubtask;
@@ -23,7 +20,7 @@ public class GeneralTest {
     @BeforeEach
     void setUp() {
         manager = new InMemoryTaskManager();
-        inMemoryHistoryManager = Managers.getDefaultHistory();
+
         baseTask = new Task("BaseTask", "BaseDescription");
         manager.createTask(baseTask);
         baseEpic = new Epic("BaseEpic", "BaseDescription");
@@ -34,7 +31,6 @@ public class GeneralTest {
 
     @AfterEach
     void tearDown() {
-        ((InMemoryHistoryManager) inMemoryHistoryManager).clearHistory();
     }
 
     @Test
@@ -45,7 +41,7 @@ public class GeneralTest {
         manager.getEpicById(baseEpic.getID());
         manager.getSubtaskById(baseSubtask.getID());
 
-        assertEquals(expectedHistorySize, inMemoryHistoryManager.getHistory().size());
+        assertEquals(expectedHistorySize, manager.getHistory().size());
     }
 
     @Test
@@ -64,17 +60,19 @@ public class GeneralTest {
         manager.getEpicById(baseEpic.getID());
         manager.getSubtaskById(baseSubtask.getID());
 
-        assertEquals(expectedHistorySize, inMemoryHistoryManager.getHistory().size());
-        assertNotEquals(manager.getTaskById(baseTask.getID()), inMemoryHistoryManager.getHistory().getFirst());
+        assertEquals(expectedHistorySize, manager.getHistory().size());
+        assertNotEquals(manager.getTaskById(baseTask.getID()), manager.getHistory().getFirst());
     }
 
     @Test
     void shouldReturnOldTaskInHistoryAfterUpdating() {
+        Task expectedTask = baseTask.copy();
         Task taskById = manager.getTaskById(baseTask.getID());
+
 
         manager.updateTask(new Task("NewName", "NewDescr", baseTask.getID()));
 
-        assertEquals(baseTask.toString(), inMemoryHistoryManager.getHistory().getFirst().toString());
+        assertEquals(expectedTask.toString(), manager.getHistory().getFirst().toString());
     }
 
     @Test

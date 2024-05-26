@@ -18,7 +18,7 @@ public class SubtaskManager implements Manager<Subtask> {
     @Override
     public Subtask create(Subtask subtask) {
         subtask.setID(InMemoryTaskManager.getID());
-        subtasks.put(subtask.getID(), new Subtask(subtask));
+        subtasks.put(subtask.getID(), subtask);
         return getById(subtask.getID());
     }
 

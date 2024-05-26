@@ -12,19 +12,14 @@ import project.util.Managers;
 
 import java.util.ArrayList;
 
-import static java.util.Arrays.asList;
-
 public class InMemoryTaskManager implements TaskManager {
 
 
     private static int counter = 0;
-    HistoryManager historyManager = Managers.getDefaultHistory();
     private final Manager<Task> taskManager = new project.services.TaskManager();
     private final EpicManager epicManager = new EpicManager();
     private final SubtaskManager subtaskManager = new SubtaskManager();
-    private final ArrayList<Manager<? extends Task>> managersList =
-            new ArrayList<>(asList(taskManager, epicManager, subtaskManager));
-
+    private HistoryManager historyManager = Managers.getDefaultHistory();
 
     public static int getID() {
         return ++InMemoryTaskManager.counter;
@@ -175,34 +170,6 @@ public class InMemoryTaskManager implements TaskManager {
         return historyManager.getHistory();
     }
 
-
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    /**
-     * Возвращает задачи всех типов одним списком
-     *
-     * @return задачи всех типов
-     */
-//    public ArrayList<Task> getAll() {
-//        ArrayList<Task> allTasks = new ArrayList<>();
-//        allTasks.addAll(getTasks());
-//        allTasks.addAll(getEpics());
-//        allTasks.addAll(getSubtasks());
-//        return allTasks;
-//    }
-//
-//    public Task getById(int id) {
-//        Task result;
-//        result = taskManager.getById(id);
-//        if (result != null) {
-//            return result;
-//        }
-//        result = epicManager.getById(id);
-//        if (result != null) {
-//            return result;
-//        }
-//        result = subtaskManager.getById(id);
-//        return result;
-//    }
 
 }
 
