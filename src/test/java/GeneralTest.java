@@ -8,7 +8,8 @@ import project.models.Subtask;
 import project.models.Task;
 import project.util.Managers;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class GeneralTest {
 
@@ -147,9 +148,9 @@ public class GeneralTest {
         int epicIdBefore = manager.getEpics().getFirst().getID();
         manager.getEpics().getFirst().setID(999);
         int epicIdAfter = manager.getEpics().getFirst().getID();
-        assertEquals(taskIdBefore,taskIdAfter);
-        assertEquals(subtaskIdBefore,subtaskIdAfter);
-        assertEquals(epicIdBefore,epicIdAfter);
+        assertEquals(taskIdBefore, taskIdAfter);
+        assertEquals(subtaskIdBefore, subtaskIdAfter);
+        assertEquals(epicIdBefore, epicIdAfter);
     }
 
 }

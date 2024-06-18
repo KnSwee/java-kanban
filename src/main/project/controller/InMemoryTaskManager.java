@@ -176,7 +176,6 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
 
-
     @Override
     public void deleteSubtasksByEpic(int epicID) {
         for (int subtaskId : new ArrayList<>(epicManager.getById(epicID).getSubtasks())) {
