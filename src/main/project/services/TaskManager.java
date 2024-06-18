@@ -28,8 +28,8 @@ public class TaskManager implements Manager<Task> {
     }
 
     @Override
-    public Task getById(int ID) {
-        return tasks.get(ID);
+    public Task getById(int id) {
+        return tasks.get(id);
     }
 
     @Override
@@ -51,12 +51,7 @@ public class TaskManager implements Manager<Task> {
     }
 
     @Override
-    public void deleteById(int ID) {
-        tasks.remove(ID);
-    }
-
-    @Override
-    public Class getType() {
-        return Task.class;
+    public void deleteById(int id) {
+        tasks.remove(id);
     }
 }

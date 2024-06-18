@@ -27,8 +27,8 @@ public class SubtaskManager implements Manager<Subtask> {
     }
 
     @Override
-    public Subtask getById(int ID) {
-        return subtasks.get(ID);
+    public Subtask getById(int id) {
+        return subtasks.get(id);
     }
 
     @Override
@@ -50,8 +50,8 @@ public class SubtaskManager implements Manager<Subtask> {
     }
 
     @Override
-    public void deleteById(int ID) {
-        subtasks.remove(ID);
+    public void deleteById(int id) {
+        subtasks.remove(id);
     }
 
     public void deleteByEpic(int epicID) {
@@ -61,10 +61,5 @@ public class SubtaskManager implements Manager<Subtask> {
                 subtasks.remove(subtask.getID());
             }
         }
-    }
-
-    @Override
-    public Class getType() {
-        return Subtask.class;
     }
 }

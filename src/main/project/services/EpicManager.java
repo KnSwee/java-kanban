@@ -30,8 +30,8 @@ public class EpicManager implements Manager<Epic> {
     }
 
     @Override
-    public Epic getById(int ID) {
-        return epics.get(ID);
+    public Epic getById(int id) {
+        return epics.get(id);
     }
 
     @Override
@@ -50,8 +50,8 @@ public class EpicManager implements Manager<Epic> {
     }
 
     @Override
-    public void deleteById(int ID) {
-        epics.remove(ID);
+    public void deleteById(int id) {
+        epics.remove(id);
     }
 
     public void updateEpicStatus(int epicID, ArrayList<Subtask> subtasks) {
@@ -84,8 +84,4 @@ public class EpicManager implements Manager<Epic> {
         }
     }
 
-    @Override
-    public Class getType() {
-        return Epic.class;
-    }
 }

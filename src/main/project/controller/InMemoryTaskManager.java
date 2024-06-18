@@ -36,8 +36,8 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public Task getTaskById(int ID) {
-        Task byId = taskManager.getById(ID);
+    public Task getTaskById(int id) {
+        Task byId = taskManager.getById(id);
         if (byId == null) {
             return null;
         }
@@ -56,9 +56,9 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void deleteTaskById(int ID) {
-        historyManager.remove(ID);
-        taskManager.deleteById(ID);
+    public void deleteTaskById(int id) {
+        historyManager.remove(id);
+        taskManager.deleteById(id);
     }
 
 
@@ -73,12 +73,12 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public Epic getEpicById(int ID) {
-        Epic byId = epicManager.getById(ID);
+    public Epic getEpicById(int id) {
+        Epic byId = epicManager.getById(id);
         if (byId == null) {
             return null;
         }
-        return historyManager.add(epicManager.getById(ID).copy());
+        return historyManager.add(epicManager.getById(id).copy());
     }
 
     @Override
@@ -87,10 +87,10 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void deleteEpicById(int ID) {
-        historyManager.remove(ID);
-        epicManager.deleteById(ID);
-        subtaskManager.deleteByEpic(ID);
+    public void deleteEpicById(int id) {
+        historyManager.remove(id);
+        epicManager.deleteById(id);
+        subtaskManager.deleteByEpic(id);
     }
 
     @Override
@@ -135,12 +135,12 @@ public class InMemoryTaskManager implements TaskManager {
 
 
     @Override
-    public Subtask getSubtaskById(int ID) {
-        Subtask byId = subtaskManager.getById(ID);
+    public Subtask getSubtaskById(int id) {
+        Subtask byId = subtaskManager.getById(id);
         if (byId == null) {
             return null;
         }
-        return historyManager.add(subtaskManager.getById(ID).copy());
+        return historyManager.add(subtaskManager.getById(id).copy());
     }
 
     @Override
@@ -165,12 +165,12 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void deleteSubtaskById(int ID) {
-        if (subtaskManager.getById(ID) != null) {
-            historyManager.remove(ID);
-            int epicID = subtaskManager.getById(ID).getEpicID();
-            subtaskManager.deleteById(ID);
-            epicManager.getById(epicID).removeSubtask(ID);
+    public void deleteSubtaskById(int id) {
+        if (subtaskManager.getById(id) != null) {
+            historyManager.remove(id);
+            int epicID = subtaskManager.getById(id).getEpicID();
+            subtaskManager.deleteById(id);
+            epicManager.getById(epicID).removeSubtask(id);
             epicManager.updateEpicStatus(epicID, getSubtasksByEpic(epicID));
         }
     }
