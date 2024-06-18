@@ -206,4 +206,10 @@ class SubtaskTest {
         assertNotEquals(firstSubtask.toString(), secondSubtask.toString());
     }
 
+    @Test
+    void shouldNotHoldIdInEpicWhenDeleteSubtask() {
+        inMemoryTaskManager.deleteSubtaskById(baseSubtask1.getID());
+        assertFalse(baseEpic.getSubtasks().contains(baseSubtask1.getID()));
+    }
+
 }

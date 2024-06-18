@@ -15,7 +15,11 @@ public class EpicManager implements Manager<Epic> {
 
     @Override
     public ArrayList<Epic> get() {
-        return new ArrayList<>(epics.values());
+        ArrayList<Epic> epicList = new ArrayList<>();
+        for (Epic epic : epics.values()) {
+            epicList.add(epic.copy());
+        }
+        return epicList;
     }
 
     @Override

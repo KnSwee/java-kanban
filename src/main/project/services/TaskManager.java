@@ -13,7 +13,11 @@ public class TaskManager implements Manager<Task> {
 
     @Override
     public ArrayList<Task> get() {
-        return new ArrayList<>(tasks.values());
+        ArrayList<Task> tasksList = new ArrayList<>();
+        for (Task task : tasks.values()) {
+            tasksList.add(task.copy());
+        }
+        return tasksList;
     }
 
     @Override

@@ -12,7 +12,11 @@ public class SubtaskManager implements Manager<Subtask> {
 
     @Override
     public ArrayList<Subtask> get() {
-        return new ArrayList<>(subtasks.values());
+        ArrayList<Subtask> subtasksList = new ArrayList<>();
+        for (Subtask subtask : subtasks.values()) {
+            subtasksList.add(subtask.copy());
+        }
+        return subtasksList;
     }
 
     @Override
