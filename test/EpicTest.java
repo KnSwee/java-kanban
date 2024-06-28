@@ -55,9 +55,9 @@ class EpicTest {
 
     @Test
     void shouldReturnEpicBySubtaskId() {
-        int SubtaskId = inMemoryTaskManager.createSubtask(new Subtask("Subtask", "Description", baseEpic.getID()));
+        int subtaskId = inMemoryTaskManager.createSubtask(new Subtask("Subtask", "Description", baseEpic.getID()));
 
-        assertEquals(baseEpic, inMemoryTaskManager.getEpicBySubtask(SubtaskId));
+        assertEquals(baseEpic, inMemoryTaskManager.getEpicBySubtask(subtaskId));
     }
 
     @Test

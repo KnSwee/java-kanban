@@ -14,6 +14,8 @@ public interface HistoryManager {
      */
     <T extends Task> T add(T task);
 
+    void remove(int id);
+
     /**
      * Возвращает историю просмотров
      *

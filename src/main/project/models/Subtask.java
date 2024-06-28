@@ -3,13 +3,13 @@ package project.models;
 public class Subtask extends Task {
     private final int epicID;
 
-    public Subtask(int ID, String name, String description, String status, int epicID) {
-        super(ID, name, description, status);
+    public Subtask(int id, String name, String description, String status, int epicID) {
+        super(id, name, description, status);
         this.epicID = epicID;
     }
 
-    public Subtask(String name, String description, int ID, int epicID) {
-        super(name, description, ID);
+    public Subtask(String name, String description, int id, int epicID) {
+        super(name, description, id);
         this.epicID = epicID;
     }
 
@@ -34,7 +34,7 @@ public class Subtask extends Task {
                 "epicID=" + epicID +
                 ", name='" + name + '\'' +
                 ", description='" + description + '\'' +
-                ", ID=" + ID +
+                ", id=" + id +
                 ", status=" + status +
                 '}';
     }

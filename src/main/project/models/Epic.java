@@ -5,8 +5,8 @@ import java.util.ArrayList;
 public class Epic extends Task {
     private ArrayList<Integer> subtasks = new ArrayList<>();
 
-    public Epic(String name, String description, int ID) {
-        super(name, description, ID);
+    public Epic(String name, String description, int id) {
+        super(name, description, id);
     }
 
     public Epic(String name, String description) {
@@ -34,7 +34,7 @@ public class Epic extends Task {
                 "subtaskIds=" + subtasks +
                 ", name='" + name + '\'' +
                 ", description='" + description + '\'' +
-                ", ID=" + ID +
+                ", id=" + id +
                 ", status=" + status +
                 '}';
     }

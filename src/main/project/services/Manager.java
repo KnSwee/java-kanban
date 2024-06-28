@@ -9,13 +9,12 @@ public interface Manager<T extends Task> {
 
     T create(T task);
 
-    T getById(int ID);
+    T getById(int id);
 
     void delete();
 
     void update(T task);
 
-    void deleteById(int ID);
+    void deleteById(int id);
 
-    Class<Task> getType();
 }

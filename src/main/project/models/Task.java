@@ -7,13 +7,13 @@ import java.util.Objects;
 public class Task {
     protected String name;
     protected String description;
-    protected int ID;
+    protected int id;
     protected Status status = Status.NEW;
 
-    public Task(String name, String description, int ID) {
+    public Task(String name, String description, int id) {
         this.name = name;
         this.description = description;
-        this.ID = ID;
+        this.id = id;
     }
 
     public Task(String name, String description) {
@@ -21,16 +21,16 @@ public class Task {
         this.description = description;
     }
 
-    public Task(int ID, String name, String description, String status) {
+    public Task(int id, String name, String description, String status) {
         this.name = name;
         this.description = description;
-        this.ID = ID;
+        this.id = id;
         this.status = Status.valueOf(status);
     }
 
     public Task(Task task) {
         this.name = task.name;
-        this.ID = task.ID;
+        this.id = task.id;
         this.description = task.description;
         this.status = task.status;
     }
@@ -44,7 +44,7 @@ public class Task {
         return "Task{" +
                 "name='" + name + '\'' +
                 ", description='" + description + '\'' +
-                ", ID=" + ID +
+                ", id=" + id +
                 ", status=" + status +
                 '}';
     }
@@ -54,13 +54,13 @@ public class Task {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Task task = (Task) o;
-        return ID == task.ID;
+        return id == task.id;
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(ID);
+        return Objects.hash(id);
     }
 
     public String getName() {
@@ -80,11 +80,11 @@ public class Task {
     }
 
     public int getID() {
-        return ID;
+        return id;
     }
 
-    public void setID(int ID) {
-        this.ID = ID;
+    public void setID(int id) {
+        this.id = id;
     }
 
     public Status getStatus() {
