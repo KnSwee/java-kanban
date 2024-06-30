@@ -8,7 +8,7 @@ import project.util.Managers;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class SubtaskTest {
+class SubtaskManagerTest {
 
     project.controller.api.TaskManager inMemoryTaskManager;
 
@@ -63,7 +63,7 @@ class SubtaskTest {
         assertEquals(expectedSubtask, inMemoryTaskManager.getSubtaskById(baseSubtask1.getID()));
     }
 
-    //    @Test
+    @Test
     void shouldUpdateSubtaskWithNullValue() {
         Subtask editSubtask = new Subtask(baseSubtask1.getID(), null, null,
                 Status.IN_PROGRESS.name(), baseSubtask1.getEpicID());

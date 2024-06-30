@@ -1,5 +1,7 @@
 package project.models;
 
+import project.enums.TaskType;
+
 import java.util.ArrayList;
 
 public class Epic extends Task {
@@ -7,15 +9,18 @@ public class Epic extends Task {
 
     public Epic(String name, String description, int id) {
         super(name, description, id);
+        type = TaskType.EPIC;
     }
 
     public Epic(String name, String description) {
         super(name, description);
+        type = TaskType.EPIC;
     }
 
     public Epic(Epic epic) {
         super(epic);
         this.subtasks = new ArrayList<>(epic.subtasks);
+        type = TaskType.EPIC;
     }
 
 

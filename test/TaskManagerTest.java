@@ -7,7 +7,7 @@ import project.util.Managers;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class TaskTest {
+class TaskManagerTest {
 
     project.controller.api.TaskManager inMemoryTaskManager;
     Task baseTask = new Task("BaseTask", "BaseDescription");

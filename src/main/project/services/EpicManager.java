@@ -30,6 +30,11 @@ public class EpicManager implements Manager<Epic> {
     }
 
     @Override
+    public void fillMap(Epic task) {
+        epics.put(task.getID(), task);
+    }
+
+    @Override
     public Epic getById(int id) {
         return epics.get(id);
     }

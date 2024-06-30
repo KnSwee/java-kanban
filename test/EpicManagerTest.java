@@ -7,7 +7,7 @@ import project.util.Managers;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class EpicTest {
+class EpicManagerTest {
 
     static Epic baseEpic = new Epic("BaseEpic", "BaseDescription");
     project.controller.api.TaskManager inMemoryTaskManager;
