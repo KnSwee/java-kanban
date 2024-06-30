@@ -27,7 +27,6 @@ public class SubtaskManager implements Manager<Subtask> {
     }
 
 
-
     @Override
     public Subtask getById(int id) {
         return subtasks.get(id);

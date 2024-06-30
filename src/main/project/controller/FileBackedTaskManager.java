@@ -16,17 +16,16 @@ import java.util.Objects;
 public class FileBackedTaskManager extends InMemoryTaskManager {
 
     public static final String DELIMITER = ";";
-    Path path;
     File file;
+    Path path;
 
-
-    public FileBackedTaskManager(Path path) {
-        this.path = path;
-        file = new File(path.toString());
+    public FileBackedTaskManager(File file) {
+        this.file = file;
+        path = file.toPath();
         if (!file.exists()) {
             create(path);
         } else {
-           loadFromFile(file);
+            loadFromFile(file);
         }
         try {
             if (file.isDirectory()) {
@@ -48,8 +47,12 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     }
 
 
-    private void refreshFile() throws IOException {
-        Files.deleteIfExists(path);
+    private void refreshFile() {
+        try {
+            Files.deleteIfExists(path);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         create(path);
     }
 
@@ -57,17 +60,20 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     public void loadFromFile(File file) {
 
         try (FileReader reader = new FileReader(file);
-        BufferedReader br = new BufferedReader(reader)) {
-            br.readLine();
+             BufferedReader br = new BufferedReader(reader)) {
+            if (br.ready()) {
+                br.readLine();
+                counter = Integer.parseInt(br.readLine());
+            }
             while (br.ready()) {
                 String line = br.readLine();
                 Task task = fromString(line);
                 if (task.getType() == TaskType.TASK) {
                     taskManager.fillMap(task);
-                } else if (task.getType() == TaskType.EPIC){
-                    epicManager.fillMap((Epic)task);
+                } else if (task.getType() == TaskType.EPIC) {
+                    epicManager.fillMap((Epic) task);
                 } else if (task.getType() == TaskType.SUBTASK) {
-                    subtaskManager.fillMap((Subtask)task);
+                    subtaskManager.fillMap((Subtask) task);
                 }
 
             }
@@ -77,10 +83,11 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     }
 
-    public void save() throws IOException {
+    public void save() {
         refreshFile();
         try (FileWriter fr = new FileWriter(file)) {
             fr.write("id;type;name;status;description;epicId/subtasksId" + System.lineSeparator());
+            fr.append(String.valueOf(counter)).append(System.lineSeparator());
             for (Task task : super.getTasks()) {
                 String taskString = toString(task);
                 fr.append(taskString);
@@ -101,22 +108,22 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         }
     }
 
-    private static String toString(Task task) {
+    public static String toString(Task task) {
         StringBuilder sb = new StringBuilder(task.getID() + DELIMITER + task.getType() + DELIMITER + task.getName() +
                 DELIMITER + task.getStatus() + DELIMITER + task.getDescription());
         if (task.getType() == TaskType.EPIC) {
-            Epic epic = (Epic)task;
+            Epic epic = (Epic) task;
             sb.append(DELIMITER);
             sb.append(epic.getSubtasks().toString());
         } else if (task.getType() == TaskType.SUBTASK) {
-            Subtask subtask = (Subtask)task;
+            Subtask subtask = (Subtask) task;
             sb.append(DELIMITER);
             sb.append(subtask.getEpicID());
         }
         return sb.toString();
     }
 
-    private static Task fromString(String task) {
+    public static Task fromString(String task) {
         String[] taskArray = task.split(DELIMITER);
         int id = Integer.parseInt(taskArray[0]);
         Task newTask = new Task(id, taskArray[2], taskArray[4], taskArray[3]);
@@ -139,4 +146,84 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         }
     }
 
+    @Override
+    public int createTask(Task task) {
+        int newTaskId = super.createTask(task);
+        save();
+        return newTaskId;
+    }
+
+    @Override
+    public void deleteTasks() {
+        super.deleteTasks();
+        save();
+    }
+
+    @Override
+    public void updateTask(Task task) {
+        super.updateTask(task);
+        save();
+    }
+
+    @Override
+    public void deleteTaskById(int id) {
+        super.deleteTaskById(id);
+        save();
+    }
+
+    @Override
+    public int createEpic(Epic epic) {
+        int newEpicId = super.createEpic(epic);
+        save();
+        return newEpicId;
+    }
+
+    @Override
+    public void deleteEpicById(int id) {
+        super.deleteEpicById(id);
+        save();
+    }
+
+    @Override
+    public void updateEpic(Epic epic) {
+        super.updateEpic(epic);
+        save();
+    }
+
+    @Override
+    public void deleteEpics() {
+        super.deleteEpics();
+        save();
+    }
+
+    @Override
+    public int createSubtask(Subtask subtask) {
+        int newSubtaskId = super.createSubtask(subtask);
+        save();
+        return newSubtaskId;
+    }
+
+    @Override
+    public void updateSubtask(Subtask subtask) {
+        super.updateSubtask(subtask);
+        save();
+    }
+
+    @Override
+    public void deleteSubtasks() {
+        super.deleteSubtasks();
+        save();
+    }
+
+    @Override
+    public void deleteSubtaskById(int id) {
+        super.deleteSubtaskById(id);
+        save();
+    }
+
+    @Override
+    public void deleteSubtasksByEpic(int epicID) {
+        super.deleteSubtasksByEpic(epicID);
+        save();
+    }
 }

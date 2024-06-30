@@ -15,11 +15,11 @@ import java.util.ArrayList;
 public class InMemoryTaskManager implements TaskManager {
 
 
-    private static int counter = 0;
+    protected static int counter = 0;
     protected final Manager<Task> taskManager = new project.services.TaskManager();
     protected final EpicManager epicManager = new EpicManager();
     protected final SubtaskManager subtaskManager = new SubtaskManager();
-    private HistoryManager historyManager = Managers.getDefaultHistory();
+    private final HistoryManager historyManager = Managers.getDefaultHistory();
 
     public static int getID() {
         return ++InMemoryTaskManager.counter;
