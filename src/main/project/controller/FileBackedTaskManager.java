@@ -77,8 +77,8 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 }
 
             }
-        } catch (ManagerSaveException | IOException e) {
-            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new ManagerSaveException("Попытка загрузки из несуществующего файла");
         }
 
     }
@@ -103,8 +103,8 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 fr.append(subtaskString);
                 fr.append(System.lineSeparator());
             }
-        } catch (ManagerSaveException | IOException e) {
-            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new ManagerSaveException("Файл не найден");
         }
     }
 
