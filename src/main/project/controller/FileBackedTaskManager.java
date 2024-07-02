@@ -1,8 +1,8 @@
 package project.controller;
 
-import project.ManagerSaveException;
 import project.enums.Status;
 import project.enums.TaskType;
+import project.exceptions.ManagerSaveException;
 import project.models.Epic;
 import project.models.Subtask;
 import project.models.Task;
@@ -16,8 +16,8 @@ import java.util.Objects;
 public class FileBackedTaskManager extends InMemoryTaskManager {
 
     public static final String DELIMITER = ";";
-    File file;
-    Path path;
+    private File file;
+    private Path path;
 
     public FileBackedTaskManager(File file) {
         this.file = file;
@@ -57,7 +57,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     }
 
 
-    public void loadFromFile(File file) {
+    public static void loadFromFile(File file) {
 
         try (FileReader reader = new FileReader(file);
              BufferedReader br = new BufferedReader(reader)) {
@@ -77,7 +77,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 }
 
             }
-        } catch (IOException e) {
+        } catch (ManagerSaveException | IOException e) {
             throw new RuntimeException(e);
         }
 
@@ -103,7 +103,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 fr.append(subtaskString);
                 fr.append(System.lineSeparator());
             }
-        } catch (IOException e) {
+        } catch (ManagerSaveException | IOException e) {
             throw new RuntimeException(e);
         }
     }

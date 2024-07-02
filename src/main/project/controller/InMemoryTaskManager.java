@@ -16,9 +16,9 @@ public class InMemoryTaskManager implements TaskManager {
 
 
     protected static int counter = 0;
-    protected final Manager<Task> taskManager = new project.services.TaskManager();
-    protected final EpicManager epicManager = new EpicManager();
-    protected final SubtaskManager subtaskManager = new SubtaskManager();
+    protected static final Manager<Task> taskManager = new project.services.TaskManager();
+    protected static final EpicManager epicManager = new EpicManager();
+    protected static final SubtaskManager subtaskManager = new SubtaskManager();
     private final HistoryManager historyManager = Managers.getDefaultHistory();
 
     public static int getID() {
