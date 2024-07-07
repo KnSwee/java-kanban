@@ -11,7 +11,7 @@ import project.util.Managers;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class GeneralTest {
+public class InMemoryTaskManagerTest {
 
     TaskManager manager;
     Task baseTask;
@@ -124,7 +124,7 @@ public class GeneralTest {
     @Test
     void shouldReturnOldTaskInHistoryAfterUpdating() {
         Task expectedTask = baseTask.copy();
-        Task taskById = manager.getTaskById(baseTask.getID());
+        manager.getTaskById(baseTask.getID());
 
 
         manager.updateTask(new Task("NewName", "NewDescr", baseTask.getID()));

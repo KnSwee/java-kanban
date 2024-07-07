@@ -28,6 +28,11 @@ public class TaskManager implements Manager<Task> {
     }
 
     @Override
+    public void fillMap(Task task) {
+        tasks.put(task.getID(), task);
+    }
+
+    @Override
     public Task getById(int id) {
         return tasks.get(id);
     }

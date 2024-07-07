@@ -17,4 +17,5 @@ public interface Manager<T extends Task> {
 
     void deleteById(int id);
 
+    void fillMap(T task);
 }

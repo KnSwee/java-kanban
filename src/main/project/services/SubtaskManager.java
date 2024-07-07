@@ -26,6 +26,7 @@ public class SubtaskManager implements Manager<Subtask> {
         return getById(subtask.getID());
     }
 
+
     @Override
     public Subtask getById(int id) {
         return subtasks.get(id);
@@ -34,6 +35,11 @@ public class SubtaskManager implements Manager<Subtask> {
     @Override
     public void delete() {
         subtasks.clear();
+    }
+
+    @Override
+    public void fillMap(Subtask task) {
+        subtasks.put(task.getID(), task);
     }
 
     @Override
