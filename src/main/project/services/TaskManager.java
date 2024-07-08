@@ -43,16 +43,18 @@ public class TaskManager implements Manager<Task> {
     }
 
     @Override
-    public void update(Task task) {
+    public Task update(Task task) {
+        Task byId = getById(task.getID());
         if (!(task.getName() == null)) {
-            getById(task.getID()).setName(task.getName());
+            byId.setName(task.getName());
         }
         if (!(task.getDescription() == null)) {
-            getById(task.getID()).setDescription(task.getDescription());
+            byId.setDescription(task.getDescription());
         }
         if (!(task.getStatus() == null)) {
-            getById(task.getID()).setStatus(task.getStatus());
+            byId.setStatus(task.getStatus());
         }
+        return byId;
     }
 
     @Override

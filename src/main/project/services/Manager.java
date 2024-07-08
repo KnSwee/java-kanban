@@ -13,7 +13,7 @@ public interface Manager<T extends Task> {
 
     void delete();
 
-    void update(T task);
+    Task update(T task);
 
     void deleteById(int id);
 

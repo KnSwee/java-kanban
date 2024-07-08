@@ -2,6 +2,7 @@ package project.controller;
 
 import project.controller.api.HistoryManager;
 import project.controller.api.TaskManager;
+import project.enums.TaskType;
 import project.models.Epic;
 import project.models.Subtask;
 import project.models.Task;
@@ -11,6 +12,7 @@ import project.services.SubtaskManager;
 import project.util.Managers;
 
 import java.util.ArrayList;
+import java.util.TreeSet;
 
 public class InMemoryTaskManager implements TaskManager {
 
@@ -20,6 +22,8 @@ public class InMemoryTaskManager implements TaskManager {
     protected static final EpicManager epicManager = new EpicManager();
     protected static final SubtaskManager subtaskManager = new SubtaskManager();
     private final HistoryManager historyManager = Managers.getDefaultHistory();
+    protected static TreeSet<Task> sortedSet = new TreeSet<>();
+
 
     public static int getID() {
         return ++InMemoryTaskManager.counter;
@@ -32,7 +36,9 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public int createTask(Task task) {
-        return taskManager.create(task).getID();
+        Task newTask = taskManager.create(task);
+        sortedSet.add(newTask);
+        return newTask.getID();
     }
 
     @Override
@@ -46,19 +52,29 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void deleteTasks() {
+        sortedSet.forEach(task -> {
+                    if (task.getType() == TaskType.TASK) {
+                        sortedSet.remove(task);
+                    }
+                });
+
         deleteFromHistory(getTasks());
         taskManager.delete();
     }
 
     @Override
     public void updateTask(Task task) {
-        taskManager.update(task);
+        sortedSet.remove(task);
+        sortedSet.add(taskManager.update(task));
     }
 
     @Override
     public void deleteTaskById(int id) {
-        historyManager.remove(id);
-        taskManager.deleteById(id);
+        if (taskManager.getById(id) != null) {
+            sortedSet.remove(getTaskById(id));
+            historyManager.remove(id);
+            taskManager.deleteById(id);
+        }
     }
 
 
@@ -88,15 +104,17 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void deleteEpicById(int id) {
-        historyManager.remove(id);
-        epicManager.deleteById(id);
-        subtaskManager.deleteByEpic(id);
+        if (epicManager.getById(id) != null) {
+            historyManager.remove(id);
+            epicManager.deleteById(id);
+            subtaskManager.deleteByEpic(id);
+        }
     }
 
     @Override
     public void updateEpic(Epic epic) {
         epicManager.update(epic);
-        epicManager.updateEpicStatus(epic.getID(), getSubtasksByEpic(epic.getID()));
+        epicManager.updateEpic(epic.getID(), getSubtasksByEpic(epic.getID()));
     }
 
     @Override
@@ -120,10 +138,11 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public int createSubtask(Subtask subtask) {
-        subtaskManager.create(subtask);
+        Subtask newSubtask = subtaskManager.create(subtask);
         int epicID = subtask.getEpicID();
         epicManager.getById(epicID).addSubtask(subtask.getID());
-        epicManager.updateEpicStatus(epicID, getSubtasksByEpic(epicID));
+        epicManager.updateEpic(epicID, getSubtasksByEpic(epicID));
+        sortedSet.add(newSubtask);
         return subtask.getID();
     }
 
@@ -145,13 +164,19 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void updateSubtask(Subtask subtask) {
-        subtaskManager.update(subtask);
+        sortedSet.remove(subtask);
+        sortedSet.add(subtaskManager.update(subtask));
         int epicID = subtask.getEpicID();
-        epicManager.updateEpicStatus(epicID, getSubtasksByEpic(epicID));
+        epicManager.updateEpic(epicID, getSubtasksByEpic(epicID));
     }
 
     @Override
     public void deleteSubtasks() {
+        sortedSet.forEach(subtask -> {
+            if (subtask.getType() == TaskType.SUBTASK) {
+                sortedSet.remove(subtask);
+            }
+        });
         deleteFromHistory(getSubtasks());
         subtaskManager.delete();
         epicManager.resetEpics();
@@ -167,27 +192,37 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void deleteSubtaskById(int id) {
         if (subtaskManager.getById(id) != null) {
+            sortedSet.remove(getSubtaskById(id));
             historyManager.remove(id);
             int epicID = subtaskManager.getById(id).getEpicID();
             subtaskManager.deleteById(id);
             epicManager.getById(epicID).removeSubtask(id);
-            epicManager.updateEpicStatus(epicID, getSubtasksByEpic(epicID));
+            epicManager.updateEpic(epicID, getSubtasksByEpic(epicID));
         }
     }
 
 
     @Override
     public void deleteSubtasksByEpic(int epicID) {
-        for (int subtaskId : new ArrayList<>(epicManager.getById(epicID).getSubtasks())) {
-            deleteSubtaskById(subtaskId);
-            historyManager.remove(subtaskId);
-        }
-
+        epicManager.getById(epicID)
+                .getSubtasks()
+                .forEach(subtaskId -> {
+                    sortedSet.remove(getSubtaskById(subtaskId));
+                    deleteSubtaskById(subtaskId);
+                    historyManager.remove(subtaskId);
+                });
     }
 
     public ArrayList<Task> getHistory() {
         return historyManager.getHistory();
     }
+
+    @Override
+    public TreeSet<Task> getPrioritizedTasks() {
+        return sortedSet;
+    }
+
+
 
 
 }
