@@ -5,6 +5,7 @@ import project.models.Subtask;
 import project.models.Task;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.TreeSet;
 
 public interface TaskManager {
@@ -36,7 +37,7 @@ public interface TaskManager {
 
     void deleteEpics();
 
-    ArrayList<Subtask> getSubtasksByEpic(int epicID);
+    List<Subtask> getSubtasksByEpic(int epicID);
 
     int createSubtask(Subtask subtask);
 

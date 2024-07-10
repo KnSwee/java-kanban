@@ -95,19 +95,13 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             fr.write("id;type;name;status;description;epicId/subtasksId" + System.lineSeparator());
             fr.append(String.valueOf(counter)).append(System.lineSeparator());
             for (Task task : super.getTasks()) {
-                String taskString = toString(task);
-                fr.append(taskString);
-                fr.append(System.lineSeparator());
+                fr.append(toString(task)).append(System.lineSeparator());
             }
             for (Epic epic : super.getEpics()) {
-                String epicString = toString(epic);
-                fr.append(epicString);
-                fr.append(System.lineSeparator());
+                fr.append(toString(epic)).append(System.lineSeparator());
             }
             for (Subtask subtask : super.getSubtasks()) {
-                String subtaskString = toString(subtask);
-                fr.append(subtaskString);
-                fr.append(System.lineSeparator());
+                fr.append(toString(subtask)).append(System.lineSeparator());
             }
         } catch (IOException e) {
             throw new ManagerSaveException("Файл не найден");

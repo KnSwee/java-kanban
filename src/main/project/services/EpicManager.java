@@ -8,8 +8,8 @@ import project.models.Task;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class EpicManager implements Manager<Epic> {
@@ -18,12 +18,11 @@ public class EpicManager implements Manager<Epic> {
 
 
     @Override
-    public ArrayList<Epic> get() {
-        ArrayList<Epic> epicList = new ArrayList<>();
-        for (Epic epic : epics.values()) {
-            epicList.add(epic.copy());
-        }
-        return epicList;
+    public List<Epic> get() {
+        return epics.values().stream()
+                .map(Epic::copy)
+                .toList();
+
     }
 
     @Override
@@ -64,20 +63,20 @@ public class EpicManager implements Manager<Epic> {
         epics.remove(id);
     }
 
-    public void updateEpic(int epicID, ArrayList<Subtask> subtasks) {
+    public void updateEpic(int epicID, List<Subtask> subtasks) {
         AtomicInteger doneStatusCounter = new AtomicInteger();
         AtomicInteger newStatusCounter = new AtomicInteger();
         Epic epic = getById(epicID);
 
-       subtasks.forEach(subtask -> {
-                    if (subtask.getStatus() == Status.IN_PROGRESS) {
-                        epic.setStatus(Status.IN_PROGRESS);
-                    } else if (subtask.getStatus() == Status.DONE) {
-                        doneStatusCounter.getAndIncrement();
-                    } else if (subtask.getStatus() == Status.NEW) {
-                        newStatusCounter.getAndIncrement();
-                    }
-                });
+        subtasks.forEach(subtask -> {
+            if (subtask.getStatus() == Status.IN_PROGRESS) {
+                epic.setStatus(Status.IN_PROGRESS);
+            } else if (subtask.getStatus() == Status.DONE) {
+                doneStatusCounter.getAndIncrement();
+            } else if (subtask.getStatus() == Status.NEW) {
+                newStatusCounter.getAndIncrement();
+            }
+        });
 
         if (newStatusCounter.get() == subtasks.size()) {
             epic.setStatus(Status.NEW);
@@ -94,14 +93,14 @@ public class EpicManager implements Manager<Epic> {
         epic.setEndTime(getEndTime(subtasks));
     }
 
-    private static Duration getDuration(ArrayList<Subtask> subtasks) {
+    private static Duration getDuration(List<Subtask> subtasks) {
         return subtasks.stream()
                 .map(Task::getDuration)
                 .reduce(Duration::plus)
                 .orElse(Duration.ZERO);
     }
 
-    private static LocalDateTime getStartTime(ArrayList<Subtask> subtasks) {
+    private static LocalDateTime getStartTime(List<Subtask> subtasks) {
         return subtasks.stream()
                 .map(Task::getStartTime)
                 .min((subtask1, subtask2) -> {
@@ -115,7 +114,7 @@ public class EpicManager implements Manager<Epic> {
                 }).orElse(null);
     }
 
-    private static LocalDateTime getEndTime(ArrayList<Subtask> subtasks) {
+    private static LocalDateTime getEndTime(List<Subtask> subtasks) {
         return subtasks.stream()
                 .map(Task::getEndTime)
                 .max((subtask1, subtask2) -> {

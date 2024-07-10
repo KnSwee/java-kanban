@@ -2,10 +2,10 @@ package project.services;
 
 import project.models.Task;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public interface Manager<T extends Task> {
-    ArrayList<T> get();
+    List<T> get();
 
     T create(T task);
 

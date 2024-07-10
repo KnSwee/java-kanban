@@ -63,7 +63,7 @@ public class InMemoryHistoryManager implements HistoryManager {
         list.clearList();
     }
 
-    private static class HistoryLinkedList<T extends Task> {
+    private static class HistoryLinkedList<T extends Task>{
 
         public Node<T> head;
         public Node<T> tail;

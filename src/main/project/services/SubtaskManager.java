@@ -4,20 +4,18 @@ import project.controller.InMemoryTaskManager;
 import project.models.Subtask;
 import project.models.Task;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class SubtaskManager implements Manager<Subtask> {
 
     private final HashMap<Integer, Subtask> subtasks = new HashMap<>();
 
     @Override
-    public ArrayList<Subtask> get() {
-        ArrayList<Subtask> subtasksList = new ArrayList<>();
-        for (Subtask subtask : subtasks.values()) {
-            subtasksList.add(subtask.copy());
-        }
-        return subtasksList;
+    public List<Subtask> get() {
+        return subtasks.values().stream()
+                .map(Subtask::copy)
+                .toList();
     }
 
     @Override
@@ -64,11 +62,10 @@ public class SubtaskManager implements Manager<Subtask> {
     }
 
     public void deleteByEpic(int epicID) {
-
-        for (Subtask subtask : new ArrayList<>(subtasks.values())) {
+        subtasks.values().forEach(subtask -> {
             if (epicID == subtask.getEpicID()) {
                 subtasks.remove(subtask.getID());
             }
-        }
+        });
     }
 }
