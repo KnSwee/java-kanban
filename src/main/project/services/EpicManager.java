@@ -8,8 +8,10 @@ import project.models.Task;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class EpicManager implements Manager<Epic> {
@@ -101,31 +103,25 @@ public class EpicManager implements Manager<Epic> {
     }
 
     private static LocalDateTime getStartTime(List<Subtask> subtasks) {
+        if (subtasks.size() == 1) {
+            return subtasks.getFirst().getStartTime();
+        }
         return subtasks.stream()
                 .map(Task::getStartTime)
-                .min((subtask1, subtask2) -> {
-                    if (subtask1.isBefore(subtask2)) {
-                        return -1;
-                    } else if (subtask1.isAfter(subtask2)) {
-                        return 1;
-                    } else {
-                        return 0;
-                    }
-                }).orElse(null);
+                .filter(Objects::nonNull)
+                .min(Comparator.naturalOrder())
+                .orElse(null);
     }
 
     private static LocalDateTime getEndTime(List<Subtask> subtasks) {
+        if (subtasks.size() == 1) {
+            return subtasks.getFirst().getEndTime();
+        }
         return subtasks.stream()
                 .map(Task::getEndTime)
-                .max((subtask1, subtask2) -> {
-                    if (subtask1.isBefore(subtask2)) {
-                        return -1;
-                    } else if (subtask1.isAfter(subtask2)) {
-                        return 1;
-                    } else {
-                        return 0;
-                    }
-                }).orElse(null);
+                .filter(Objects::nonNull)
+                .max(Comparator.naturalOrder())
+                .orElse(null);
     }
 
 

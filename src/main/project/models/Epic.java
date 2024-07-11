@@ -53,8 +53,11 @@ public class Epic extends Task {
                 "subtaskIds=" + subtasks +
                 ", name='" + name + '\'' +
                 ", description='" + description + '\'' +
-                ", id=" + id +
-                ", status=" + status +
+                ", id=" + id + '\'' +
+                ", status=" + status + '\'' +
+                ", duration ='" + duration + '\'' +
+                ", startTime ='" + getNoData(startTime) + '\'' +
+                ", endTime ='" + getNoData(getEndTime()) + '\'' +
                 '}';
     }
 

@@ -2,7 +2,6 @@ package project.controller;
 
 import project.controller.api.HistoryManager;
 import project.controller.api.TaskManager;
-import project.enums.TaskType;
 import project.models.Epic;
 import project.models.Subtask;
 import project.models.Task;
@@ -11,6 +10,8 @@ import project.services.Manager;
 import project.services.SubtaskManager;
 import project.util.Managers;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeSet;
@@ -19,6 +20,7 @@ import java.util.stream.Collectors;
 public class InMemoryTaskManager implements TaskManager {
 
 
+    public static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yy HH:mm");
     protected static int counter = 0;
     protected static final Manager<Task> taskManager = new project.services.TaskManager();
     protected static final EpicManager epicManager = new EpicManager();
@@ -42,8 +44,15 @@ public class InMemoryTaskManager implements TaskManager {
             Task newTask = taskManager.create(task);
             addToSortedSet(newTask);
             return newTask.getID();
+        } else {
+            saveErrorLog(task.getID());
         }
         return 0;
+    }
+
+    private void saveErrorLog(int id) {
+        System.out.printf("%s %s: %s %s%n", LocalDateTime.now().format(FORMATTER), this.getClass(), "Задача не может быть добавлена в связи с пересечением времени исполнения", id);
+        //throw new RuntimeException();
     }
 
     protected static void addToSortedSet(Task task) {
@@ -63,12 +72,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void deleteTasks() {
-        sortedSet.forEach(task -> {
-            if (task.getType() == TaskType.TASK) {
-                sortedSet.remove(task);
-            }
-        });
-
+        getTasks().forEach(task -> sortedSet.remove(task));
         deleteFromHistory(getTasks());
         taskManager.delete();
     }
@@ -78,6 +82,8 @@ public class InMemoryTaskManager implements TaskManager {
         if (intersectionChecker(task)) {
             sortedSet.remove(task);
             addToSortedSet(taskManager.update(task));
+        } else {
+            saveErrorLog(task.getID());
         }
     }
 
@@ -119,8 +125,8 @@ public class InMemoryTaskManager implements TaskManager {
     public void deleteEpicById(int id) {
         if (epicManager.getById(id) != null) {
             historyManager.remove(id);
-            epicManager.deleteById(id);
             deleteSubtasksByEpic(id);
+            epicManager.deleteById(id);
         }
     }
 
@@ -157,6 +163,8 @@ public class InMemoryTaskManager implements TaskManager {
             epicManager.updateEpic(epicID, getSubtasksByEpic(epicID));
             addToSortedSet(newSubtask);
             return subtask.getID();
+        } else {
+            saveErrorLog(subtask.getID());
         }
         return 0;
     }
@@ -184,16 +192,14 @@ public class InMemoryTaskManager implements TaskManager {
             addToSortedSet(subtaskManager.update(subtask));
             int epicID = subtask.getEpicID();
             epicManager.updateEpic(epicID, getSubtasksByEpic(epicID));
+        } else {
+            saveErrorLog(subtask.getID());
         }
     }
 
     @Override
     public void deleteSubtasks() {
-        sortedSet.forEach(subtask -> {
-            if (subtask.getType() == TaskType.SUBTASK) {
-                sortedSet.remove(subtask);
-            }
-        });
+        getSubtasks().forEach(subtask -> sortedSet.remove(subtask));
         deleteFromHistory(getSubtasks());
         subtaskManager.delete();
         epicManager.resetEpics();
@@ -219,8 +225,8 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void deleteSubtasksByEpic(int epicID) {
-        epicManager.getById(epicID)
-                .getSubtasks()
+        new ArrayList<>(epicManager.getById(epicID)
+                .getSubtasks())
                 .forEach(subtaskId -> {
                     sortedSet.remove(getSubtaskById(subtaskId));
                     deleteSubtaskById(subtaskId);
@@ -239,6 +245,9 @@ public class InMemoryTaskManager implements TaskManager {
 
 
     protected static boolean intersectionChecker(Task checkedTask) {
+        if (checkedTask.getStartTime() == null) {
+            return true;
+        }
         return sortedSet.stream()
                 .filter(task -> !checkedTask.getStartTime().isAfter(task.getEndTime()) && !checkedTask.getEndTime().isBefore(task.getStartTime()))
                 .toList().isEmpty();

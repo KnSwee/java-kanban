@@ -8,6 +8,8 @@ import project.models.Subtask;
 import project.models.Task;
 import project.util.Managers;
 
+import java.time.LocalDateTime;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -22,16 +24,18 @@ public class InMemoryTaskManagerTest {
     void setUp() {
         manager = new InMemoryTaskManager();
 
-        baseTask = new Task("BaseTask", "BaseDescription");
+        baseTask = new Task("BaseTask", "BaseDescription", 10, LocalDateTime.now());
         manager.createTask(baseTask);
         baseEpic = new Epic("BaseEpic", "BaseDescription");
         manager.createEpic(baseEpic);
-        baseSubtask = new Subtask("BaseSubtask", "BaseDescription", baseEpic.getID());
+        baseSubtask = new Subtask("BaseSubtask", "BaseDescription", baseEpic.getID(), 10,LocalDateTime.now().plusMinutes(1000));
         manager.createSubtask(baseSubtask);
     }
 
     @AfterEach
     void tearDown() {
+        manager.deleteTasks();
+        manager.deleteEpics();
     }
 
     @Test
@@ -89,12 +93,12 @@ public class InMemoryTaskManagerTest {
 
     @Test
     void shouldRemoveTailFromHistory() {
-        manager.getTaskById(baseTask.getID());
         manager.getSubtaskById(baseSubtask.getID());
         manager.getEpicById(baseEpic.getID());
+        manager.getTaskById(baseTask.getID());
         assertEquals(3, manager.getHistory().size());
 
-        manager.deleteEpicById(baseEpic.getID());
+        manager.deleteTaskById(baseTask.getID());
         assertEquals(2, manager.getHistory().size());
     }
 
@@ -127,7 +131,7 @@ public class InMemoryTaskManagerTest {
         manager.getTaskById(baseTask.getID());
 
 
-        manager.updateTask(new Task("NewName", "NewDescr", baseTask.getID()));
+        manager.updateTask(new Task("NewName", "NewDescr", baseTask.getID(), 1, LocalDateTime.now().plusMinutes(333)));
 
         assertEquals(expectedTask.toString(), manager.getHistory().getFirst().toString());
     }

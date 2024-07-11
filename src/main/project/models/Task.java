@@ -6,6 +6,9 @@ import project.enums.TaskType;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.Optional;
+
+import static project.controller.InMemoryTaskManager.FORMATTER;
 
 public class Task implements Comparable<Task> {
     protected String name;
@@ -55,6 +58,9 @@ public class Task implements Comparable<Task> {
     }
 
     public LocalDateTime getEndTime() {
+        if (startTime == null) {
+            return null;
+        }
         return startTime.plusMinutes(duration.toMinutes());
     }
 
@@ -66,9 +72,13 @@ public class Task implements Comparable<Task> {
                 ", id='" + id + '\'' +
                 ", status='" + status + '\'' +
                 ", duration ='" + duration + '\'' +
-                ", startTime ='" + startTime + '\'' +
-                ", endTime ='" + getEndTime() + '\'' +
+                ", startTime ='" + getNoData(startTime) + '\'' +
+                ", endTime ='" + getNoData(getEndTime()) + '\'' +
                 '}';
+    }
+
+    public static String getNoData(LocalDateTime time) {
+        return Optional.ofNullable(time).map(t -> t.format(FORMATTER)).orElse("no data");
     }
 
     @Override
@@ -140,6 +150,11 @@ public class Task implements Comparable<Task> {
 
     @Override
     public int compareTo(Task o) {
-        return this.getStartTime().compareTo(o.getStartTime());
+        if (this.getStartTime() == null) {
+            return 1;
+        }
+        return Optional.ofNullable(o.getStartTime())
+                .map(startTime -> this.getStartTime().compareTo(startTime))
+                .orElse(-1);
     }
 }

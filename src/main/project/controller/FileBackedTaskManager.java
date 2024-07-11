@@ -111,7 +111,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     public static String toString(Task task) {
         StringBuilder sb = new StringBuilder(task.getID() + DELIMITER + task.getType() + DELIMITER + task.getName() +
                 DELIMITER + task.getStatus() + DELIMITER + task.getDescription() + DELIMITER + task.getDuration().toMinutes() +
-                DELIMITER + task.getStartTime().toString());
+                DELIMITER + task.getStartTime());
         if (task.getType() == TaskType.EPIC) {
             Epic epic = (Epic) task;
             sb.append(DELIMITER);

@@ -1,3 +1,4 @@
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,6 +14,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -33,15 +35,15 @@ public class FIleBackedTaskManagerTest {
     void setUp() {
         file = new File(String.valueOf(path));
         manager = new FileBackedTaskManager(file);
-        baseTask = new Task("BaseTask", "BaseDescription");
+        baseTask = new Task("BaseTask", "BaseDescription", 1, LocalDateTime.now().plusMinutes(10));
         manager.createTask(baseTask);
-        baseTask2 = new Task("BaseTask2", "BaseDescription2");
+        baseTask2 = new Task("BaseTask2", "BaseDescription2", 2, LocalDateTime.now().plusMinutes(20));
         manager.createTask(baseTask2);
         baseEpic = new Epic("BaseEpic", "BaseDescription");
         manager.createEpic(baseEpic);
-        baseSubtask = new Subtask("BaseSubtask", "BaseDescription", baseEpic.getID());
+        baseSubtask = new Subtask("BaseSubtask", "BaseDescription", baseEpic.getID(), 3, LocalDateTime.now().plusMinutes(30));
         manager.createSubtask(baseSubtask);
-        baseSubtask2 = new Subtask("BaseSubtask2", "BaseDescription2", baseEpic.getID());
+        baseSubtask2 = new Subtask("BaseSubtask2", "BaseDescription2", baseEpic.getID(), 4, LocalDateTime.now().plusMinutes(50));
         manager.createSubtask(baseSubtask2);
     }
 
@@ -49,6 +51,14 @@ public class FIleBackedTaskManagerTest {
     void tearDown() throws IOException {
         Files.deleteIfExists(path);
         Files.deleteIfExists(Path.of("./out/emptyFileTest.csv"));
+        manager.deleteTasks();
+        manager.deleteEpics();
+
+    }
+
+    @AfterAll
+    static void afterAll() throws IOException {
+        Files.deleteIfExists(Path.of("./out/testFile.csv"));
     }
 
     @Test
@@ -84,7 +94,7 @@ public class FIleBackedTaskManagerTest {
         assertEquals(manager.getEpics(), fbtm.getEpics());
         assertEquals(manager.getSubtasks(), fbtm.getSubtasks());
 
-        int fbtmCounter = fbtm.createTask(new Task("name", "descr"));
+        int fbtmCounter = fbtm.createTask(new Task("name", "descr", 1, LocalDateTime.now().plusMinutes(1000)));
 
         assertEquals(baseSubtask2.getID() + 1, fbtmCounter);
     }

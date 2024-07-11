@@ -53,6 +53,12 @@ public class SubtaskManager implements Manager<Subtask> {
         if (!(subtask.getStatus() == null)) {
             byId.setStatus(subtask.getStatus());
         }
+        if (!(subtask.getDuration() == null || subtask.getDuration().toSeconds() == 0)) {
+            byId.setDuration(subtask.getDuration());
+        }
+        if (!(subtask.getStartTime() == null)) {
+            byId.setStartTime(subtask.getStartTime());
+        }
         return byId;
     }
 

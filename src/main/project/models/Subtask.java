@@ -46,8 +46,8 @@ public class Subtask extends Task {
                 ", id=" + id + '\'' +
                 ", status='" + status + '\'' +
                 ", duration ='" + duration + '\'' +
-                ", startTime ='" + startTime + '\'' +
-                ", endTime ='" + getEndTime() + '\'' +
+                ", startTime ='" + getNoData(startTime) + '\'' +
+                ", endTime ='" + getNoData(getEndTime()) + '\'' +
                 '}';
     }
 

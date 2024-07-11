@@ -5,6 +5,8 @@ import project.models.Epic;
 import project.models.Subtask;
 import project.util.Managers;
 
+import java.time.LocalDateTime;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class EpicManagerTest {
@@ -55,7 +57,7 @@ class EpicManagerTest {
 
     @Test
     void shouldReturnEpicBySubtaskId() {
-        int subtaskId = inMemoryTaskManager.createSubtask(new Subtask("Subtask", "Description", baseEpic.getID()));
+        int subtaskId = inMemoryTaskManager.createSubtask(new Subtask("Subtask", "Description", baseEpic.getID(),10, LocalDateTime.now()));
 
         assertEquals(baseEpic, inMemoryTaskManager.getEpicBySubtask(subtaskId));
     }

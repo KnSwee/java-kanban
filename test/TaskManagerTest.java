@@ -5,18 +5,20 @@ import project.enums.Status;
 import project.models.Task;
 import project.util.Managers;
 
+import java.time.LocalDateTime;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class TaskManagerTest {
 
     project.controller.api.TaskManager inMemoryTaskManager;
-    Task baseTask = new Task("BaseTask", "BaseDescription");
+    Task baseTask = new Task("BaseTask", "BaseDescription", 10, LocalDateTime.now());
 
     @BeforeEach
     void setUp() {
         inMemoryTaskManager = Managers.getDefault();
         baseTask.setID(inMemoryTaskManager.createTask(new Task(baseTask)));
-        inMemoryTaskManager.createTask(new Task(2, "Task2", "Description2", Status.NEW.name()));
+        inMemoryTaskManager.createTask(new Task(2, "Task2", "Description2", Status.NEW.name(), 10, LocalDateTime.now().plusMinutes(125)));
     }
 
     @AfterEach
@@ -27,7 +29,7 @@ class TaskManagerTest {
 
     @Test
     void shouldCreateTaskAndReturnTaskObject() {
-        Task expectedTask = new Task("NewTask", "NewDescription");
+        Task expectedTask = new Task("NewTask", "NewDescription", 10, LocalDateTime.now().plusMinutes(20));
         int initialCollectionSize = inMemoryTaskManager.getTasks().size();
 
         int id = inMemoryTaskManager.createTask(expectedTask);
@@ -52,7 +54,7 @@ class TaskManagerTest {
 
     @Test
     void shouldUpdateTask() {
-        Task expectedTask = new Task(baseTask.getID(), "NewName", "NewDescription", Status.DONE.name());
+        Task expectedTask = new Task(baseTask.getID(), "NewName", "NewDescription", Status.DONE.name(), 10, LocalDateTime.now().minusMonths(123));
 
         inMemoryTaskManager.updateTask(expectedTask);
 
@@ -83,8 +85,8 @@ class TaskManagerTest {
 
     @Test
     void shouldReturnTrueForDifferentTasksWithSameId() {
-        Task firstTask = new Task(baseTask.getID(), "Same", "Same", Status.IN_PROGRESS.name());
-        Task secondTask = new Task(baseTask.getID(), "notSame", "notSame123", Status.NEW.name());
+        Task firstTask = new Task(baseTask.getID(), "Same", "Same", Status.IN_PROGRESS.name(), 10, LocalDateTime.now());
+        Task secondTask = new Task(baseTask.getID(), "notSame", "notSame123", Status.NEW.name(), 110, LocalDateTime.now().plusMinutes(100));
 
         assertEquals(firstTask, secondTask);
         assertNotEquals(firstTask.toString(), secondTask.toString());
