@@ -10,11 +10,11 @@ import project.util.Managers;
 
 import java.time.LocalDateTime;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class InMemoryTaskManagerTest {
 
+    public static final LocalDateTime TIME = LocalDateTime.of(2024, 2, 2, 14, 0);
     TaskManager manager;
     Task baseTask;
     Epic baseEpic;
@@ -23,12 +23,11 @@ public class InMemoryTaskManagerTest {
     @BeforeEach
     void setUp() {
         manager = new InMemoryTaskManager();
-
-        baseTask = new Task("BaseTask", "BaseDescription", 10, LocalDateTime.now());
+        baseTask = new Task("BaseTask", "BaseDescription", 10, TIME);
         manager.createTask(baseTask);
         baseEpic = new Epic("BaseEpic", "BaseDescription");
         manager.createEpic(baseEpic);
-        baseSubtask = new Subtask("BaseSubtask", "BaseDescription", baseEpic.getID(), 10,LocalDateTime.now().plusMinutes(1000));
+        baseSubtask = new Subtask("BaseSubtask", "BaseDescription", baseEpic.getID(), 10, TIME.plusMinutes(1000));
         manager.createSubtask(baseSubtask);
     }
 
@@ -131,9 +130,14 @@ public class InMemoryTaskManagerTest {
         manager.getTaskById(baseTask.getID());
 
 
-        manager.updateTask(new Task("NewName", "NewDescr", baseTask.getID(), 1, LocalDateTime.now().plusMinutes(333)));
+        manager.updateTask(new Task("NewName", "NewDescr", baseTask.getID(), 1, TIME.plusMinutes(333)));
 
         assertEquals(expectedTask.toString(), manager.getHistory().getFirst().toString());
+    }
+
+    @Test
+    void shouldReturnEmptyHistory() {
+        assertTrue(manager.getHistory().isEmpty());
     }
 
     @Test
@@ -157,4 +161,42 @@ public class InMemoryTaskManagerTest {
         assertEquals(epicIdBefore, epicIdAfter);
     }
 
+    @Test
+    void shouldNotCreateTaskWithSameStartTime() {
+        int initialSize = manager.getTasks().size();
+
+        manager.createTask(new Task("name", "descr", 10, TIME));
+
+        assertEquals(initialSize, manager.getTasks().size());
+    }
+
+    @Test
+    void shouldNotCreateTasksThatOverlap() {
+        int initialSize = manager.getTasks().size();
+
+        manager.createTask(new Task("name", "descr", 10, TIME.plusYears(1)));
+        manager.createTask(new Task("name", "descr", 10, TIME.plusYears(1).plusMinutes(5)));
+
+        assertEquals(initialSize + 1, manager.getTasks().size());
+    }
+
+    @Test
+    void shouldNotCreateTasksThatOverlapWithStartAndEndTime() {
+        int initialSize = manager.getTasks().size();
+
+        manager.createTask(new Task("name", "descr", 10, TIME.plusYears(1)));
+        manager.createTask(new Task("name", "descr", 10, TIME.plusYears(1).plusMinutes(10)));
+
+        assertEquals(initialSize + 1, manager.getTasks().size());
+    }
+
+    @Test
+    void shouldCreateTasksThatNotOverlap() {
+        int initialSize = manager.getTasks().size();
+
+        manager.createTask(new Task("name", "descr", 10, TIME.plusYears(1)));
+        manager.createTask(new Task("name", "descr", 10, TIME.plusYears(1).plusMinutes(11)));
+
+        assertEquals(initialSize + 2, manager.getTasks().size());
+    }
 }

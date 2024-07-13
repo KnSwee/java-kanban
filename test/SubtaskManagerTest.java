@@ -35,7 +35,7 @@ class SubtaskManagerTest {
 
     @Test
     void shouldCreateSubtaskAndReturnSubtaskObject() {
-        Subtask expectedSubtask = new Subtask("NewSubtask", "NewDescription", baseEpic.getID(),3, LocalDateTime.now().plusMinutes(25));
+        Subtask expectedSubtask = new Subtask("NewSubtask", "NewDescription", baseEpic.getID(), 3, LocalDateTime.now().plusMinutes(25));
         int initialCollectionSize = inMemoryTaskManager.getSubtasksByEpic(baseEpic.getID()).size();
 
         inMemoryTaskManager.createSubtask(expectedSubtask);
@@ -72,8 +72,6 @@ class SubtaskManagerTest {
 
         inMemoryTaskManager.updateSubtask(editSubtask);
         Subtask updatedSubtask = inMemoryTaskManager.getSubtaskById(baseSubtask1.getID());
-
-        System.out.println(inMemoryTaskManager.getPrioritizedTasks());
 
         assertEquals(baseSubtask1.getID(), updatedSubtask.getID());
         assertEquals(editSubtask.getStatus(), updatedSubtask.getStatus());

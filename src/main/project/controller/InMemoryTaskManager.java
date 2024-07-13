@@ -45,13 +45,13 @@ public class InMemoryTaskManager implements TaskManager {
             addToSortedSet(newTask);
             return newTask.getID();
         } else {
-            saveErrorLog(task.getID());
+            saveErrorLog(task);
         }
         return 0;
     }
 
-    private void saveErrorLog(int id) {
-        System.out.printf("%s %s: %s %s%n", LocalDateTime.now().format(FORMATTER), this.getClass(), "Задача не может быть добавлена в связи с пересечением времени исполнения", id);
+    private void saveErrorLog(Task task) {
+        System.out.printf("%s %s: %s %s%n", LocalDateTime.now().format(FORMATTER), this.getClass(), "Задача не может быть добавлена в связи с пересечением времени исполнения", task);
         //throw new RuntimeException();
     }
 
@@ -83,7 +83,7 @@ public class InMemoryTaskManager implements TaskManager {
             sortedSet.remove(task);
             addToSortedSet(taskManager.update(task));
         } else {
-            saveErrorLog(task.getID());
+            saveErrorLog(task);
         }
     }
 
@@ -164,7 +164,7 @@ public class InMemoryTaskManager implements TaskManager {
             addToSortedSet(newSubtask);
             return subtask.getID();
         } else {
-            saveErrorLog(subtask.getID());
+            saveErrorLog(subtask);
         }
         return 0;
     }
@@ -193,7 +193,7 @@ public class InMemoryTaskManager implements TaskManager {
             int epicID = subtask.getEpicID();
             epicManager.updateEpic(epicID, getSubtasksByEpic(epicID));
         } else {
-            saveErrorLog(subtask.getID());
+            saveErrorLog(subtask);
         }
     }
 

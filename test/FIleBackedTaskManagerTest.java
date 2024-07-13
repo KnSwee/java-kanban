@@ -1,9 +1,7 @@
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import project.controller.FileBackedTaskManager;
 import project.controller.api.TaskManager;
+import project.exceptions.ManagerSaveException;
 import project.models.Epic;
 import project.models.Subtask;
 import project.models.Task;
@@ -59,6 +57,16 @@ public class FIleBackedTaskManagerTest {
     @AfterAll
     static void afterAll() throws IOException {
         Files.deleteIfExists(Path.of("./out/testFile.csv"));
+    }
+
+    @Test
+    void shouldThrowsFileDoesNotExistException() {
+        Assertions.assertThrows(ManagerSaveException.class, () -> new FileBackedTaskManager(new File(file.getParent())));
+    }
+
+    @Test
+    void shouldThrowsIsDirectoryException() {
+        Assertions.assertThrows(ManagerSaveException.class, () -> new FileBackedTaskManager(new File("./out")));
     }
 
     @Test

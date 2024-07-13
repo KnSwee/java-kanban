@@ -36,7 +36,6 @@ public class Epic extends Task {
     }
 
 
-
     @Override
     public Epic copy() {
         return new Epic(this);

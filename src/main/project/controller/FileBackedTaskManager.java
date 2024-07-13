@@ -31,14 +31,10 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         } else {
             loadFromFile(file);
         }
-        try {
-            if (file.isDirectory()) {
-                throw new ManagerSaveException("Попытка загрузка директории. Ожидался файл.");
-            } else if (!file.exists()) {
-                throw new ManagerSaveException("Попытка загрузки из несуществующего файла");
-            }
-        } catch (ManagerSaveException e) {
-            throw new RuntimeException(e);
+        if (file.isDirectory()) {
+            throw new ManagerSaveException("Попытка загрузка директории. Ожидался файл.");
+        } else if (!file.exists()) {
+            throw new ManagerSaveException("Попытка загрузки из несуществующего файла");
         }
     }
 
@@ -46,16 +42,15 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         try {
             Files.createFile(path);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new ManagerSaveException("Ошибка при создании файла", e);
         }
     }
-
 
     private void refreshFile() {
         try {
             Files.deleteIfExists(path);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new ManagerSaveException("Ошибка при удалении файла", e);
         }
         create(path);
     }
