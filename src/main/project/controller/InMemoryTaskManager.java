@@ -40,19 +40,21 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public int createTask(Task task) {
-        if (intersectionChecker(task)) {
+        List<Task> overlapedTasks = intersectionChecker(task);
+        if (overlapedTasks.isEmpty()) {
             Task newTask = taskManager.create(task);
             addToSortedSet(newTask);
             return newTask.getID();
         } else {
-            saveErrorLog(task);
+            saveErrorLog(task, overlapedTasks);
         }
         return 0;
     }
 
-    private void saveErrorLog(Task task) {
-        System.out.printf("%s %s: %s %s%n", LocalDateTime.now().format(FORMATTER), this.getClass(), "Задача не может быть добавлена в связи с пересечением времени исполнения", task);
-        //throw new RuntimeException();
+    private void saveErrorLog(Task task, List<Task> overlapedTasks) {
+        System.out.printf("%s %s: %s %n Проверяемая задача %s%n Задачи, с которыми она пересекается %s%n",
+                LocalDateTime.now().format(FORMATTER), this.getClass(),
+                "Задача не может быть добавлена в связи с пересечением времени исполнения", task, overlapedTasks);
     }
 
     protected static void addToSortedSet(Task task) {
@@ -79,11 +81,12 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void updateTask(Task task) {
-        if (intersectionChecker(task)) {
+        List<Task> overlapedTasks = intersectionChecker(task);
+        if (overlapedTasks.isEmpty()) {
             sortedSet.remove(task);
             addToSortedSet(taskManager.update(task));
         } else {
-            saveErrorLog(task);
+            saveErrorLog(task, overlapedTasks);
         }
     }
 
@@ -156,7 +159,8 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public int createSubtask(Subtask subtask) {
-        if (intersectionChecker(subtask)) {
+        List<Task> overlapedSubtasks = intersectionChecker(subtask);
+        if (overlapedSubtasks.isEmpty()) {
             Subtask newSubtask = subtaskManager.create(subtask);
             int epicID = subtask.getEpicID();
             epicManager.getById(epicID).addSubtask(subtask.getID());
@@ -164,7 +168,7 @@ public class InMemoryTaskManager implements TaskManager {
             addToSortedSet(newSubtask);
             return subtask.getID();
         } else {
-            saveErrorLog(subtask);
+            saveErrorLog(subtask, overlapedSubtasks);
         }
         return 0;
     }
@@ -187,13 +191,14 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void updateSubtask(Subtask subtask) {
-        if (intersectionChecker(subtask)) {
+        List<Task> overlapedSubtasks = intersectionChecker(subtask);
+        if (overlapedSubtasks.isEmpty()) {
             sortedSet.remove(subtask);
             addToSortedSet(subtaskManager.update(subtask));
             int epicID = subtask.getEpicID();
             epicManager.updateEpic(epicID, getSubtasksByEpic(epicID));
         } else {
-            saveErrorLog(subtask);
+            saveErrorLog(subtask, overlapedSubtasks);
         }
     }
 
@@ -244,13 +249,14 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
 
-    protected static boolean intersectionChecker(Task checkedTask) {
+    protected static List<Task> intersectionChecker(Task checkedTask) {
         if (checkedTask.getStartTime() == null) {
-            return true;
+            return new ArrayList<>() {
+            };
         }
         return sortedSet.stream()
                 .filter(task -> !checkedTask.getStartTime().isAfter(task.getEndTime()) && !checkedTask.getEndTime().isBefore(task.getStartTime()))
-                .toList().isEmpty();
+                .toList();
     }
 
 }
