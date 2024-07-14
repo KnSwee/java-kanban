@@ -199,4 +199,14 @@ public class InMemoryTaskManagerTest {
 
         assertEquals(initialSize + 2, manager.getTasks().size());
     }
+
+    @Test
+    void shouldReturnPrioritizedTasks() {
+        manager.createTask(new Task("1 year from now", "descr", 100, TIME.plusYears(1)));
+        int firstId = manager.createTask(new Task("1 year ago from now", "descr", 100, TIME.minusYears(1)));
+        int lastId = manager.createTask(new Task("the last", "descr", 100, TIME.plusYears(76)));
+
+        assertEquals(manager.getTaskById(firstId) , manager.getPrioritizedTasks().get(0));
+        assertEquals(manager.getTaskById(lastId) , manager.getPrioritizedTasks().get(manager.getPrioritizedTasks().size() - 1));
+    }
 }
