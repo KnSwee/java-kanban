@@ -2,23 +2,26 @@ package project.models;
 
 import project.enums.TaskType;
 
+import java.time.LocalDateTime;
+
 public class Subtask extends Task {
     private int epicID;
 
-    public Subtask(int id, String name, String description, String status, int epicID) {
-        super(id, name, description, status);
+    public Subtask(int id, String name, String description, String status, int epicID, int durationInMinutes, LocalDateTime startTime) {
+        super(id, name, description, status, durationInMinutes, startTime);
+        this.epicID = epicID;
+        type = TaskType.SUBTASK;
+
+    }
+
+    public Subtask(String name, String description, int id, int epicID, int durationInMinutes, LocalDateTime startTime) {
+        super(name, description, id, durationInMinutes, startTime);
         this.epicID = epicID;
         type = TaskType.SUBTASK;
     }
 
-    public Subtask(String name, String description, int id, int epicID) {
-        super(name, description, id);
-        this.epicID = epicID;
-        type = TaskType.SUBTASK;
-    }
-
-    public Subtask(String name, String description, int epicID) {
-        super(name, description);
+    public Subtask(String name, String description, int epicID, int durationInMinutes, LocalDateTime startTime) {
+        super(name, description, durationInMinutes, startTime);
         this.epicID = epicID;
         type = TaskType.SUBTASK;
     }
@@ -40,8 +43,11 @@ public class Subtask extends Task {
                 "epicID=" + epicID +
                 ", name='" + name + '\'' +
                 ", description='" + description + '\'' +
-                ", id=" + id +
-                ", status=" + status +
+                ", id=" + id + '\'' +
+                ", status='" + status + '\'' +
+                ", duration ='" + duration + '\'' +
+                ", startTime ='" + getNoData(startTime) + '\'' +
+                ", endTime ='" + getNoData(getEndTime()) + '\'' +
                 '}';
     }
 

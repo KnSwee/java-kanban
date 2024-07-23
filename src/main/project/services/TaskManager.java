@@ -3,8 +3,8 @@ package project.services;
 import project.controller.InMemoryTaskManager;
 import project.models.Task;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class TaskManager implements Manager<Task> {
 
@@ -12,12 +12,10 @@ public class TaskManager implements Manager<Task> {
 
 
     @Override
-    public ArrayList<Task> get() {
-        ArrayList<Task> tasksList = new ArrayList<>();
-        for (Task task : tasks.values()) {
-            tasksList.add(task.copy());
-        }
-        return tasksList;
+    public List<Task> get() {
+        return tasks.values().stream()
+                .map(Task::copy)
+                .toList();
     }
 
     @Override
@@ -43,16 +41,18 @@ public class TaskManager implements Manager<Task> {
     }
 
     @Override
-    public void update(Task task) {
+    public Task update(Task task) {
+        Task byId = getById(task.getID());
         if (!(task.getName() == null)) {
-            getById(task.getID()).setName(task.getName());
+            byId.setName(task.getName());
         }
         if (!(task.getDescription() == null)) {
-            getById(task.getID()).setDescription(task.getDescription());
+            byId.setDescription(task.getDescription());
         }
         if (!(task.getStatus() == null)) {
-            getById(task.getID()).setStatus(task.getStatus());
+            byId.setStatus(task.getStatus());
         }
+        return byId;
     }
 
     @Override

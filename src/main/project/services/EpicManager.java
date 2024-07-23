@@ -4,9 +4,15 @@ import project.controller.InMemoryTaskManager;
 import project.enums.Status;
 import project.models.Epic;
 import project.models.Subtask;
+import project.models.Task;
 
-import java.util.ArrayList;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class EpicManager implements Manager<Epic> {
 
@@ -14,12 +20,11 @@ public class EpicManager implements Manager<Epic> {
 
 
     @Override
-    public ArrayList<Epic> get() {
-        ArrayList<Epic> epicList = new ArrayList<>();
-        for (Epic epic : epics.values()) {
-            epicList.add(epic.copy());
-        }
-        return epicList;
+    public List<Epic> get() {
+        return epics.values().stream()
+                .map(Epic::copy)
+                .toList();
+
     }
 
     @Override
@@ -45,13 +50,14 @@ public class EpicManager implements Manager<Epic> {
     }
 
     @Override
-    public void update(Epic epic) {
+    public Task update(Epic epic) {
         if (!(epic.getName() == null)) {
             getById(epic.getID()).setName(epic.getName());
         }
         if (!(epic.getDescription() == null)) {
             getById(epic.getID()).setDescription(epic.getDescription());
         }
+        return null;
     }
 
     @Override
@@ -59,34 +65,71 @@ public class EpicManager implements Manager<Epic> {
         epics.remove(id);
     }
 
-    public void updateEpicStatus(int epicID, ArrayList<Subtask> subtasks) {
-        int doneCounter = 0;
-        int newCounter = 0;
+    public void updateEpic(int epicID, List<Subtask> subtasks) {
+        AtomicInteger doneStatusCounter = new AtomicInteger();
+        AtomicInteger newStatusCounter = new AtomicInteger();
         Epic epic = getById(epicID);
-        for (Subtask subtask : subtasks) {
+
+        subtasks.forEach(subtask -> {
             if (subtask.getStatus() == Status.IN_PROGRESS) {
                 epic.setStatus(Status.IN_PROGRESS);
-                break;
             } else if (subtask.getStatus() == Status.DONE) {
-                doneCounter++;
+                doneStatusCounter.getAndIncrement();
             } else if (subtask.getStatus() == Status.NEW) {
-                newCounter++;
+                newStatusCounter.getAndIncrement();
             }
-        }
-        if (newCounter == subtasks.size()) {
+        });
+
+        if (newStatusCounter.get() == subtasks.size()) {
             epic.setStatus(Status.NEW);
-        } else if (doneCounter == subtasks.size()) {
+        } else if (doneStatusCounter.get() == subtasks.size()) {
             epic.setStatus(Status.DONE);
         } else {
             epic.setStatus(Status.IN_PROGRESS);
         }
+
+        epic.setStartTime(getStartTime(subtasks));
+
+        epic.setDuration(getDuration(subtasks));
+
+        epic.setEndTime(getEndTime(subtasks));
     }
 
+    private static Duration getDuration(List<Subtask> subtasks) {
+        return subtasks.stream()
+                .map(Task::getDuration)
+                .reduce(Duration::plus)
+                .orElse(Duration.ZERO);
+    }
+
+    private static LocalDateTime getStartTime(List<Subtask> subtasks) {
+        if (subtasks.size() == 1) {
+            return subtasks.getFirst().getStartTime();
+        }
+        return subtasks.stream()
+                .map(Task::getStartTime)
+                .filter(Objects::nonNull)
+                .min(Comparator.naturalOrder())
+                .orElse(null);
+    }
+
+    private static LocalDateTime getEndTime(List<Subtask> subtasks) {
+        if (subtasks.size() == 1) {
+            return subtasks.getFirst().getEndTime();
+        }
+        return subtasks.stream()
+                .map(Task::getEndTime)
+                .filter(Objects::nonNull)
+                .max(Comparator.naturalOrder())
+                .orElse(null);
+    }
+
+
     public void resetEpics() {
-        for (Epic epic : epics.values()) {
+        epics.values().forEach(epic -> {
             epic.clearSubtasks();
             epic.setStatus(Status.NEW);
-        }
+        });
     }
 
 }

@@ -8,11 +8,13 @@ import project.models.Subtask;
 import project.models.Task;
 import project.util.Managers;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import java.time.LocalDateTime;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class InMemoryTaskManagerTest {
 
+    public static final LocalDateTime TIME = LocalDateTime.of(2024, 2, 2, 14, 0);
     TaskManager manager;
     Task baseTask;
     Epic baseEpic;
@@ -21,17 +23,18 @@ public class InMemoryTaskManagerTest {
     @BeforeEach
     void setUp() {
         manager = new InMemoryTaskManager();
-
-        baseTask = new Task("BaseTask", "BaseDescription");
+        baseTask = new Task("BaseTask", "BaseDescription", 10, TIME);
         manager.createTask(baseTask);
         baseEpic = new Epic("BaseEpic", "BaseDescription");
         manager.createEpic(baseEpic);
-        baseSubtask = new Subtask("BaseSubtask", "BaseDescription", baseEpic.getID());
+        baseSubtask = new Subtask("BaseSubtask", "BaseDescription", baseEpic.getID(), 10, TIME.plusMinutes(1000));
         manager.createSubtask(baseSubtask);
     }
 
     @AfterEach
     void tearDown() {
+        manager.deleteTasks();
+        manager.deleteEpics();
     }
 
     @Test
@@ -89,12 +92,12 @@ public class InMemoryTaskManagerTest {
 
     @Test
     void shouldRemoveTailFromHistory() {
-        manager.getTaskById(baseTask.getID());
         manager.getSubtaskById(baseSubtask.getID());
         manager.getEpicById(baseEpic.getID());
+        manager.getTaskById(baseTask.getID());
         assertEquals(3, manager.getHistory().size());
 
-        manager.deleteEpicById(baseEpic.getID());
+        manager.deleteTaskById(baseTask.getID());
         assertEquals(2, manager.getHistory().size());
     }
 
@@ -127,9 +130,14 @@ public class InMemoryTaskManagerTest {
         manager.getTaskById(baseTask.getID());
 
 
-        manager.updateTask(new Task("NewName", "NewDescr", baseTask.getID()));
+        manager.updateTask(new Task("NewName", "NewDescr", baseTask.getID(), 1, TIME.plusMinutes(333)));
 
         assertEquals(expectedTask.toString(), manager.getHistory().getFirst().toString());
+    }
+
+    @Test
+    void shouldReturnEmptyHistory() {
+        assertTrue(manager.getHistory().isEmpty());
     }
 
     @Test
@@ -153,4 +161,52 @@ public class InMemoryTaskManagerTest {
         assertEquals(epicIdBefore, epicIdAfter);
     }
 
+    @Test
+    void shouldNotCreateTaskWithSameStartTime() {
+        int initialSize = manager.getTasks().size();
+
+        manager.createTask(new Task("name", "descr", 10, TIME));
+
+        assertEquals(initialSize, manager.getTasks().size());
+    }
+
+    @Test
+    void shouldNotCreateTasksThatOverlap() {
+        int initialSize = manager.getTasks().size();
+
+        manager.createTask(new Task("name", "descr", 10, TIME.plusYears(1)));
+        manager.createTask(new Task("name", "descr", 10, TIME.plusYears(1).plusMinutes(5)));
+
+        assertEquals(initialSize + 1, manager.getTasks().size());
+    }
+
+    @Test
+    void shouldNotCreateTasksThatOverlapWithStartAndEndTime() {
+        int initialSize = manager.getTasks().size();
+
+        manager.createTask(new Task("name", "descr", 10, TIME.plusYears(1)));
+        manager.createTask(new Task("name", "descr", 10, TIME.plusYears(1).plusMinutes(10)));
+
+        assertEquals(initialSize + 1, manager.getTasks().size());
+    }
+
+    @Test
+    void shouldCreateTasksThatNotOverlap() {
+        int initialSize = manager.getTasks().size();
+
+        manager.createTask(new Task("name", "descr", 10, TIME.plusYears(1)));
+        manager.createTask(new Task("name", "descr", 10, TIME.plusYears(1).plusMinutes(11)));
+
+        assertEquals(initialSize + 2, manager.getTasks().size());
+    }
+
+    @Test
+    void shouldReturnPrioritizedTasks() {
+        manager.createTask(new Task("1 year from now", "descr", 100, TIME.plusYears(1)));
+        int firstId = manager.createTask(new Task("1 year ago from now", "descr", 100, TIME.minusYears(1)));
+        int lastId = manager.createTask(new Task("the last", "descr", 100, TIME.plusYears(76)));
+
+        assertEquals(manager.getTaskById(firstId) , manager.getPrioritizedTasks().get(0));
+        assertEquals(manager.getTaskById(lastId) , manager.getPrioritizedTasks().get(manager.getPrioritizedTasks().size() - 1));
+    }
 }

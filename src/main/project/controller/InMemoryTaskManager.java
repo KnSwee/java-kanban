@@ -10,16 +10,24 @@ import project.services.Manager;
 import project.services.SubtaskManager;
 import project.util.Managers;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 public class InMemoryTaskManager implements TaskManager {
 
 
+    public static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yy HH:mm");
     protected static int counter = 0;
     protected static final Manager<Task> taskManager = new project.services.TaskManager();
     protected static final EpicManager epicManager = new EpicManager();
     protected static final SubtaskManager subtaskManager = new SubtaskManager();
     private final HistoryManager historyManager = Managers.getDefaultHistory();
+    protected static TreeSet<Task> sortedSet = new TreeSet<>();
+
 
     public static int getID() {
         return ++InMemoryTaskManager.counter;
@@ -32,7 +40,27 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public int createTask(Task task) {
-        return taskManager.create(task).getID();
+        List<Task> overlapedTasks = intersectionChecker(task);
+        if (overlapedTasks.isEmpty()) {
+            Task newTask = taskManager.create(task);
+            addToSortedSet(newTask);
+            return newTask.getID();
+        } else {
+            saveErrorLog(task, overlapedTasks);
+        }
+        return 0;
+    }
+
+    private void saveErrorLog(Task task, List<Task> overlapedTasks) {
+        System.out.printf("%s %s: %s %n Проверяемая задача %s%n Задачи, с которыми она пересекается %s%n",
+                LocalDateTime.now().format(FORMATTER), this.getClass(),
+                "Задача не может быть добавлена в связи с пересечением времени исполнения", task, overlapedTasks);
+    }
+
+    protected static void addToSortedSet(Task task) {
+        if (task.getStartTime() != null) {
+            sortedSet.add(task);
+        }
     }
 
     @Override
@@ -46,19 +74,29 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void deleteTasks() {
+        getTasks().forEach(task -> sortedSet.remove(task));
         deleteFromHistory(getTasks());
         taskManager.delete();
     }
 
     @Override
     public void updateTask(Task task) {
-        taskManager.update(task);
+        List<Task> overlapedTasks = intersectionChecker(task);
+        if (overlapedTasks.isEmpty()) {
+            sortedSet.remove(task);
+            addToSortedSet(taskManager.update(task));
+        } else {
+            saveErrorLog(task, overlapedTasks);
+        }
     }
 
     @Override
     public void deleteTaskById(int id) {
-        historyManager.remove(id);
-        taskManager.deleteById(id);
+        if (taskManager.getById(id) != null) {
+            sortedSet.remove(getTaskById(id));
+            historyManager.remove(id);
+            taskManager.deleteById(id);
+        }
     }
 
 
@@ -88,43 +126,51 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void deleteEpicById(int id) {
-        historyManager.remove(id);
-        epicManager.deleteById(id);
-        subtaskManager.deleteByEpic(id);
+        if (epicManager.getById(id) != null) {
+            historyManager.remove(id);
+            deleteSubtasksByEpic(id);
+            epicManager.deleteById(id);
+        }
     }
 
     @Override
     public void updateEpic(Epic epic) {
         epicManager.update(epic);
-        epicManager.updateEpicStatus(epic.getID(), getSubtasksByEpic(epic.getID()));
+        epicManager.updateEpic(epic.getID(), getSubtasksByEpic(epic.getID()));
     }
 
     @Override
     public void deleteEpics() {
         deleteFromHistory(getSubtasks());
         deleteFromHistory(getEpics());
-        subtaskManager.delete();
+        deleteSubtasks();
         epicManager.delete();
     }
 
 
     @Override
-    public ArrayList<Subtask> getSubtasksByEpic(int epicID) {
-        ArrayList<Subtask> subtasks = new ArrayList<>();
-        for (Integer subtaskId : epicManager.getById(epicID).getSubtasks()) {
-            subtasks.add(subtaskManager.getById(subtaskId).copy());
-        }
-        return subtasks;
+    public List<Subtask> getSubtasksByEpic(int epicID) {
+        return epicManager.getById(epicID).getSubtasks()
+                .stream()
+                .map(subtask -> subtaskManager.getById(subtask).copy())
+                .collect(Collectors.toList());
     }
 
 
     @Override
     public int createSubtask(Subtask subtask) {
-        subtaskManager.create(subtask);
-        int epicID = subtask.getEpicID();
-        epicManager.getById(epicID).addSubtask(subtask.getID());
-        epicManager.updateEpicStatus(epicID, getSubtasksByEpic(epicID));
-        return subtask.getID();
+        List<Task> overlapedSubtasks = intersectionChecker(subtask);
+        if (overlapedSubtasks.isEmpty()) {
+            Subtask newSubtask = subtaskManager.create(subtask);
+            int epicID = subtask.getEpicID();
+            epicManager.getById(epicID).addSubtask(subtask.getID());
+            epicManager.updateEpic(epicID, getSubtasksByEpic(epicID));
+            addToSortedSet(newSubtask);
+            return subtask.getID();
+        } else {
+            saveErrorLog(subtask, overlapedSubtasks);
+        }
+        return 0;
     }
 
 
@@ -145,13 +191,20 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void updateSubtask(Subtask subtask) {
-        subtaskManager.update(subtask);
-        int epicID = subtask.getEpicID();
-        epicManager.updateEpicStatus(epicID, getSubtasksByEpic(epicID));
+        List<Task> overlapedSubtasks = intersectionChecker(subtask);
+        if (overlapedSubtasks.isEmpty()) {
+            sortedSet.remove(subtask);
+            addToSortedSet(subtaskManager.update(subtask));
+            int epicID = subtask.getEpicID();
+            epicManager.updateEpic(epicID, getSubtasksByEpic(epicID));
+        } else {
+            saveErrorLog(subtask, overlapedSubtasks);
+        }
     }
 
     @Override
     public void deleteSubtasks() {
+        getSubtasks().forEach(subtask -> sortedSet.remove(subtask));
         deleteFromHistory(getSubtasks());
         subtaskManager.delete();
         epicManager.resetEpics();
@@ -159,42 +212,54 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     private void deleteFromHistory(ArrayList<? extends Task> list) {
-        for (Task task : list) {
-            historyManager.remove(task.getID());
-        }
+        list.forEach(task -> historyManager.remove(task.getID()));
     }
 
     @Override
     public void deleteSubtaskById(int id) {
         if (subtaskManager.getById(id) != null) {
+            sortedSet.remove(getSubtaskById(id));
             historyManager.remove(id);
             int epicID = subtaskManager.getById(id).getEpicID();
             subtaskManager.deleteById(id);
             epicManager.getById(epicID).removeSubtask(id);
-            epicManager.updateEpicStatus(epicID, getSubtasksByEpic(epicID));
+            epicManager.updateEpic(epicID, getSubtasksByEpic(epicID));
         }
     }
 
 
     @Override
     public void deleteSubtasksByEpic(int epicID) {
-        for (int subtaskId : new ArrayList<>(epicManager.getById(epicID).getSubtasks())) {
-            deleteSubtaskById(subtaskId);
-            historyManager.remove(subtaskId);
-        }
-
+        new ArrayList<>(epicManager.getById(epicID)
+                .getSubtasks())
+                .forEach(subtaskId -> {
+                    sortedSet.remove(getSubtaskById(subtaskId));
+                    deleteSubtaskById(subtaskId);
+                    historyManager.remove(subtaskId);
+                });
     }
 
     public ArrayList<Task> getHistory() {
         return historyManager.getHistory();
     }
 
+    @Override
+    public ArrayList<Task> getPrioritizedTasks() {
+        return new ArrayList<>(sortedSet);
+    }
+
+
+    protected static List<Task> intersectionChecker(Task checkedTask) {
+        if (checkedTask.getStartTime() == null) {
+            return new ArrayList<>() {
+            };
+        }
+        return sortedSet.stream()
+                .filter(task -> !checkedTask.getStartTime().isAfter(task.getEndTime()) && !checkedTask.getEndTime().isBefore(task.getStartTime()))
+                .toList();
+    }
 
 }
-
-
-
-
 
 
 

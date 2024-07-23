@@ -5,6 +5,7 @@ import project.models.Subtask;
 import project.models.Task;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public interface TaskManager {
 
@@ -35,7 +36,7 @@ public interface TaskManager {
 
     void deleteEpics();
 
-    ArrayList<Subtask> getSubtasksByEpic(int epicID);
+    List<Subtask> getSubtasksByEpic(int epicID);
 
     int createSubtask(Subtask subtask);
 
@@ -52,4 +53,6 @@ public interface TaskManager {
     void deleteSubtasksByEpic(int epicID);
 
     ArrayList<Task> getHistory();
+
+    ArrayList<Task> getPrioritizedTasks();
 }
