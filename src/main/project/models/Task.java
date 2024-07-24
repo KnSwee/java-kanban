@@ -13,7 +13,7 @@ import static project.controller.InMemoryTaskManager.FORMATTER;
 public class Task implements Comparable<Task> {
     protected String name;
     protected String description;
-    protected int id;
+    protected Integer id;
     protected Status status = Status.NEW;
     protected TaskType type = TaskType.TASK;
     protected Duration duration;
@@ -81,13 +81,7 @@ public class Task implements Comparable<Task> {
         return Optional.ofNullable(time).map(t -> t.format(FORMATTER)).orElse("no data");
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Task task = (Task) o;
-        return id == task.id;
-    }
+
 
 
     @Override
@@ -111,11 +105,11 @@ public class Task implements Comparable<Task> {
         this.description = description;
     }
 
-    public int getID() {
+    public Integer getID() {
         return id;
     }
 
-    public void setID(int id) {
+    public void setID(Integer id) {
         this.id = id;
     }
 
@@ -156,5 +150,13 @@ public class Task implements Comparable<Task> {
         return Optional.ofNullable(o.getStartTime())
                 .map(startTime -> this.getStartTime().compareTo(startTime))
                 .orElse(-1);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Task task = (Task) o;
+        return Objects.equals(id, task.id);
     }
 }

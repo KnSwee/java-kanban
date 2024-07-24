@@ -2,6 +2,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import project.enums.Status;
+import project.exceptions.NotFoundException;
 import project.models.Task;
 import project.util.Managers;
 
@@ -67,7 +68,7 @@ class TaskManagerTest {
 
         inMemoryTaskManager.deleteTaskById(baseTask.getID());
 
-        assertNull(inMemoryTaskManager.getTaskById(baseTask.getID()));
+        assertThrows(NotFoundException.class, () -> inMemoryTaskManager.getTaskById(baseTask.getID()));
         assertEquals(initialCollectionSize - 1, inMemoryTaskManager.getTasks().size());
     }
 

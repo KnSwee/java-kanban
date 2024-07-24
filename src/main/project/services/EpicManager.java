@@ -2,16 +2,14 @@ package project.services;
 
 import project.controller.InMemoryTaskManager;
 import project.enums.Status;
+import project.exceptions.NotFoundException;
 import project.models.Epic;
 import project.models.Subtask;
 import project.models.Task;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class EpicManager implements Manager<Epic> {
@@ -41,7 +39,7 @@ public class EpicManager implements Manager<Epic> {
 
     @Override
     public Epic getById(int id) {
-        return epics.get(id);
+        return Optional.ofNullable(epics.get(id)).orElseThrow(NotFoundException::new);
     }
 
     @Override
