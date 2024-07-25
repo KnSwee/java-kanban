@@ -20,7 +20,7 @@ public class Task implements Comparable<Task> {
     protected LocalDateTime startTime;
 
 
-    public Task(String name, String description, int id, int durationInMinutes, LocalDateTime startTime) {
+    public Task(String name, String description, Integer id, int durationInMinutes, LocalDateTime startTime) {
         this.name = name;
         this.description = description;
         this.id = id;
@@ -35,7 +35,7 @@ public class Task implements Comparable<Task> {
         this.startTime = startTime;
     }
 
-    public Task(int id, String name, String description, String status, int durationInMinutes, LocalDateTime startTime) {
+    public Task(Integer id, String name, String description, String status, int durationInMinutes, LocalDateTime startTime) {
         this.name = name;
         this.description = description;
         this.id = id;
@@ -80,8 +80,6 @@ public class Task implements Comparable<Task> {
     public static String getNoData(LocalDateTime time) {
         return Optional.ofNullable(time).map(t -> t.format(FORMATTER)).orElse("no data");
     }
-
-
 
 
     @Override

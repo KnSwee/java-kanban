@@ -3,6 +3,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import project.controller.InMemoryTaskManager;
 import project.controller.api.TaskManager;
+import project.exceptions.IntersectionException;
 import project.models.Epic;
 import project.models.Subtask;
 import project.models.Task;
@@ -23,6 +24,7 @@ public class InMemoryTaskManagerTest {
     @BeforeEach
     void setUp() {
         manager = new InMemoryTaskManager();
+        manager.deleteSubtasks();
         baseTask = new Task("BaseTask", "BaseDescription", 10, TIME);
         manager.createTask(baseTask);
         baseEpic = new Epic("BaseEpic", "BaseDescription");
@@ -34,6 +36,7 @@ public class InMemoryTaskManagerTest {
     @AfterEach
     void tearDown() {
         manager.deleteTasks();
+        manager.deleteSubtasks();
         manager.deleteEpics();
     }
 
@@ -84,8 +87,6 @@ public class InMemoryTaskManagerTest {
         manager.getEpicById(baseEpic.getID());
         assertEquals(3, manager.getHistory().size());
 
-        manager.deleteTaskById(baseTask.getID());
-        assertEquals(2, manager.getHistory().size());
         manager.deleteTaskById(baseTask.getID());
         assertEquals(2, manager.getHistory().size());
     }
@@ -165,7 +166,8 @@ public class InMemoryTaskManagerTest {
     void shouldNotCreateTaskWithSameStartTime() {
         int initialSize = manager.getTasks().size();
 
-        manager.createTask(new Task("name", "descr", 10, TIME));
+        assertThrows(IntersectionException.class,
+                () -> manager.createTask(new Task("name", "descr", 10, TIME)));
 
         assertEquals(initialSize, manager.getTasks().size());
     }
@@ -175,7 +177,10 @@ public class InMemoryTaskManagerTest {
         int initialSize = manager.getTasks().size();
 
         manager.createTask(new Task("name", "descr", 10, TIME.plusYears(1)));
-        manager.createTask(new Task("name", "descr", 10, TIME.plusYears(1).plusMinutes(5)));
+
+        assertThrows(IntersectionException.class,
+                () -> manager.createTask(new Task("name", "descr", 10,
+                        TIME.plusYears(1).plusMinutes(5))));
 
         assertEquals(initialSize + 1, manager.getTasks().size());
     }
@@ -185,7 +190,10 @@ public class InMemoryTaskManagerTest {
         int initialSize = manager.getTasks().size();
 
         manager.createTask(new Task("name", "descr", 10, TIME.plusYears(1)));
-        manager.createTask(new Task("name", "descr", 10, TIME.plusYears(1).plusMinutes(10)));
+
+        assertThrows(IntersectionException.class,
+                () -> manager.createTask(new Task("name", "descr", 10,
+                        TIME.plusYears(1).plusMinutes(10))));
 
         assertEquals(initialSize + 1, manager.getTasks().size());
     }
@@ -206,7 +214,19 @@ public class InMemoryTaskManagerTest {
         int firstId = manager.createTask(new Task("1 year ago from now", "descr", 100, TIME.minusYears(1)));
         int lastId = manager.createTask(new Task("the last", "descr", 100, TIME.plusYears(76)));
 
-        assertEquals(manager.getTaskById(firstId) , manager.getPrioritizedTasks().get(0));
-        assertEquals(manager.getTaskById(lastId) , manager.getPrioritizedTasks().get(manager.getPrioritizedTasks().size() - 1));
+        System.out.println(manager.getPrioritizedTasks());
+        System.out.println(manager.getSubtasks());
+        assertEquals(manager.getTaskById(firstId), manager.getPrioritizedTasks().get(0));
+        assertEquals(manager.getTaskById(lastId), manager.getPrioritizedTasks().get(manager.getPrioritizedTasks().size() - 1));
     }
+
+    @Test
+    void shouldUpdateTaskThatOverlapThemselve() {
+        int taskId = manager.createTask(new Task("name", "descr", 10, TIME.plusYears(111)));
+
+        manager.updateTask(new Task("newName", "realNewDescr", taskId, 10, TIME.plusYears(111)));
+
+        assertEquals("newName", manager.getTaskById(taskId).getName());
+    }
+
 }

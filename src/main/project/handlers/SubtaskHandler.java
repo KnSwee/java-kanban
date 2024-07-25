@@ -2,6 +2,7 @@ package project.handlers;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
+import project.controller.api.TaskManager;
 import project.exceptions.IntersectionException;
 import project.exceptions.NotFoundException;
 import project.models.Subtask;
@@ -10,6 +11,10 @@ import java.io.IOException;
 
 public class SubtaskHandler extends BaseHttpHandler implements HttpHandler {
 
+
+    public SubtaskHandler(TaskManager manager) {
+        super(manager);
+    }
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {
@@ -48,7 +53,7 @@ public class SubtaskHandler extends BaseHttpHandler implements HttpHandler {
                 } else {
                     try {
                         manager.updateSubtask(subtask);
-                        sendText(exchange,"Подзадача обновлена", 201);
+                        sendText(exchange, "Подзадача обновлена", 201);
                     } catch (NotFoundException e) {
                         sendText(exchange, "Подзадачи с id" + id + " не существует", 404);
                     } catch (IntersectionException e) {
@@ -57,7 +62,7 @@ public class SubtaskHandler extends BaseHttpHandler implements HttpHandler {
                 }
             case "DELETE":
                 manager.deleteSubtaskById(id);
-                sendText(exchange, "Задача с id " + id + " успешно удалена",200);
+                sendText(exchange, "Задача с id " + id + " успешно удалена", 200);
                 break;
             default:
                 unaviableMethod(exchange);
