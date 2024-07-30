@@ -9,18 +9,16 @@ import project.HttpTaskServer;
 import project.controller.InMemoryTaskManager;
 import project.controller.api.TaskManager;
 import project.exceptions.NotFoundException;
-import project.handlers.adapters.DurationAdapter;
-import project.handlers.adapters.LocalDateTimeAdapter;
 import project.models.Epic;
 import project.models.Subtask;
 import project.models.Task;
+import project.util.Managers;
 
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -49,9 +47,7 @@ public class EpicTest {
         manager.createEpic(baseEpic);
         baseSubtask = new Subtask("BaseSubtask", "BaseDescription", baseEpic.getID(), 10, TIME.plusMinutes(1000));
         manager.createSubtask(baseSubtask);
-        gson = new Gson().newBuilder().setPrettyPrinting().serializeNulls()
-                .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
-                .registerTypeAdapter(Duration.class, new DurationAdapter()).create();
+        gson = Managers.getGson();
     }
 
     @AfterEach
