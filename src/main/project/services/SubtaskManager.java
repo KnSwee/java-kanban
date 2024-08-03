@@ -1,11 +1,13 @@
 package project.services;
 
 import project.controller.InMemoryTaskManager;
+import project.exceptions.NotFoundException;
 import project.models.Subtask;
 import project.models.Task;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 
 public class SubtaskManager implements Manager<Subtask> {
 
@@ -28,7 +30,7 @@ public class SubtaskManager implements Manager<Subtask> {
 
     @Override
     public Subtask getById(int id) {
-        return subtasks.get(id);
+        return Optional.ofNullable(subtasks.get(id)).orElseThrow(NotFoundException::new);
     }
 
     @Override

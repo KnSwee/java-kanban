@@ -1,6 +1,7 @@
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import project.exceptions.NotFoundException;
 import project.models.Epic;
 import project.models.Subtask;
 import project.util.Managers;
@@ -68,7 +69,7 @@ class EpicManagerTest {
 
         inMemoryTaskManager.deleteEpicById(baseEpic.getID());
 
-        assertNull(inMemoryTaskManager.getEpicById(baseEpic.getID()));
+        assertThrows(NotFoundException.class, () -> inMemoryTaskManager.getEpicById(baseEpic.getID()));
         assertEquals(initialCollectionSize - 1, inMemoryTaskManager.getEpics().size());
     }
 

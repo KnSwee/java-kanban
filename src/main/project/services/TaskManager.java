@@ -1,10 +1,12 @@
 package project.services;
 
 import project.controller.InMemoryTaskManager;
+import project.exceptions.NotFoundException;
 import project.models.Task;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 
 public class TaskManager implements Manager<Task> {
 
@@ -32,7 +34,7 @@ public class TaskManager implements Manager<Task> {
 
     @Override
     public Task getById(int id) {
-        return tasks.get(id);
+        return Optional.ofNullable(tasks.get(id)).orElseThrow(NotFoundException::new);
     }
 
     @Override

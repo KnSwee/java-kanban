@@ -2,6 +2,7 @@ package project.controller;
 
 import project.controller.api.HistoryManager;
 import project.controller.api.TaskManager;
+import project.exceptions.IntersectionException;
 import project.models.Epic;
 import project.models.Subtask;
 import project.models.Task;
@@ -10,7 +11,6 @@ import project.services.Manager;
 import project.services.SubtaskManager;
 import project.util.Managers;
 
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,15 +46,8 @@ public class InMemoryTaskManager implements TaskManager {
             addToSortedSet(newTask);
             return newTask.getID();
         } else {
-            saveErrorLog(task, overlapedTasks);
+            throw new IntersectionException(task, overlapedTasks);
         }
-        return 0;
-    }
-
-    private void saveErrorLog(Task task, List<Task> overlapedTasks) {
-        System.out.printf("%s %s: %s %n Проверяемая задача %s%n Задачи, с которыми она пересекается %s%n",
-                LocalDateTime.now().format(FORMATTER), this.getClass(),
-                "Задача не может быть добавлена в связи с пересечением времени исполнения", task, overlapedTasks);
     }
 
     protected static void addToSortedSet(Task task) {
@@ -80,13 +73,17 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void updateTask(Task task) {
-        List<Task> overlapedTasks = intersectionChecker(task);
-        if (overlapedTasks.isEmpty()) {
-            sortedSet.remove(task);
-            addToSortedSet(taskManager.update(task));
+    public void updateTask(Task newTask) {
+        List<Task> overlapedTasks = intersectionChecker(newTask);
+        boolean isEmpty = overlapedTasks.stream()
+                .filter(task -> !task.getID().equals(newTask.getID()))
+                .toList()
+                .isEmpty();
+        if (isEmpty) {
+            sortedSet.remove(newTask);
+            addToSortedSet(taskManager.update(newTask));
         } else {
-            saveErrorLog(task, overlapedTasks);
+            throw new IntersectionException(newTask, overlapedTasks);
         }
     }
 
@@ -168,9 +165,8 @@ public class InMemoryTaskManager implements TaskManager {
             addToSortedSet(newSubtask);
             return subtask.getID();
         } else {
-            saveErrorLog(subtask, overlapedSubtasks);
+            throw new IntersectionException(subtask, overlapedSubtasks);
         }
-        return 0;
     }
 
 
@@ -190,15 +186,16 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void updateSubtask(Subtask subtask) {
-        List<Task> overlapedSubtasks = intersectionChecker(subtask);
-        if (overlapedSubtasks.isEmpty()) {
-            sortedSet.remove(subtask);
-            addToSortedSet(subtaskManager.update(subtask));
-            int epicID = subtask.getEpicID();
+    public void updateSubtask(Subtask newSubtask) {
+        List<Task> overlapedSubtasks = intersectionChecker(newSubtask);
+        boolean isEmpty = overlapedSubtasks.stream().filter(task -> !task.getID().equals(newSubtask.getID())).toList().isEmpty();
+        if (isEmpty) {
+            sortedSet.removeIf(newSubtask::equals);
+            addToSortedSet(subtaskManager.update(newSubtask));
+            int epicID = newSubtask.getEpicID();
             epicManager.updateEpic(epicID, getSubtasksByEpic(epicID));
         } else {
-            saveErrorLog(subtask, overlapedSubtasks);
+            throw new IntersectionException(newSubtask, overlapedSubtasks);
         }
     }
 

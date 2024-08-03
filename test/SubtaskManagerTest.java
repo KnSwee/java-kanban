@@ -2,6 +2,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import project.enums.Status;
+import project.exceptions.NotFoundException;
 import project.models.Epic;
 import project.models.Subtask;
 import project.util.Managers;
@@ -143,25 +144,31 @@ class SubtaskManagerTest {
         inMemoryTaskManager.deleteSubtasks();
 
         assertEquals(expectedSubtasksSize, inMemoryTaskManager.getSubtasks().size());
-        assertNull(inMemoryTaskManager.getSubtaskById(baseSubtask1.getID()));
+        assertThrows(NotFoundException.class, () -> inMemoryTaskManager.getSubtaskById(baseSubtask1.getID()));
+        assertThrows(NotFoundException.class, () -> inMemoryTaskManager.getSubtaskById(baseSubtask2.getID()));
         assertTrue(inMemoryTaskManager.getSubtasks().isEmpty());
     }
 
     @Test
     void shouldDeleteSubtaskById() {
         int subtaskId = baseSubtask1.getID();
+        int subtasksSize = inMemoryTaskManager.getSubtasks().size();
 
         inMemoryTaskManager.deleteSubtaskById(subtaskId);
 
-        assertNull(inMemoryTaskManager.getSubtaskById(subtaskId));
+        assertEquals(subtasksSize - 1, inMemoryTaskManager.getSubtasks().size());
+        assertThrows(NotFoundException.class, () -> inMemoryTaskManager.getSubtaskById(subtaskId));
     }
 
     @Test
     void shouldDeleteSubtasksByEpicId() {
+        int subtasksSize = inMemoryTaskManager.getSubtasks().size();
+
         inMemoryTaskManager.deleteSubtasksByEpic(baseEpic.getID());
 
-        assertNull(inMemoryTaskManager.getSubtaskById(baseSubtask1.getID()));
-        assertNull(inMemoryTaskManager.getSubtaskById(baseSubtask2.getID()));
+        assertThrows(NotFoundException.class, () -> inMemoryTaskManager.getSubtaskById(baseSubtask1.getID()));
+        assertThrows(NotFoundException.class, () -> inMemoryTaskManager.getSubtaskById(baseSubtask2.getID()));
+        assertEquals(subtasksSize - 2, inMemoryTaskManager.getSubtasks().size());
     }
 
     @Test

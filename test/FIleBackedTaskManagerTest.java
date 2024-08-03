@@ -50,6 +50,7 @@ public class FIleBackedTaskManagerTest {
         Files.deleteIfExists(path);
         Files.deleteIfExists(Path.of("./out/emptyFileTest.csv"));
         manager.deleteTasks();
+        manager.deleteSubtasks();
         manager.deleteEpics();
 
     }
